@@ -85,11 +85,18 @@ export function createHttp(options: HttpOptions) {
             method,
             headers: {
               Authorization: `Bearer ${options.token}`,
-              ...(requestOptions.body === undefined ? {} : { 'Content-Type': 'application/json' }),
+              ...(requestOptions.body === undefined || requestOptions.body instanceof FormData
+                ? {}
+                : { 'Content-Type': 'application/json' }),
             },
             ...(requestOptions.body === undefined
               ? {}
-              : { body: JSON.stringify(requestOptions.body) }),
+              : {
+                  body:
+                    requestOptions.body instanceof FormData
+                      ? requestOptions.body
+                      : JSON.stringify(requestOptions.body),
+                }),
             signal,
             redirect: 'error',
           })

@@ -10,7 +10,7 @@
 
 - [x] config/paths + store + resolve（テスト: 優先順位、0600）
 - [x] api/http（ストリーム JSON、body.error、429 backoff、timeout）+ errors
-- [ ] api/client 全エンドポイント + types（msw テスト）
+- [x] api/client 全エンドポイント + types（msw テスト）
 - [ ] login / logout / whoami / workspaces list
 
 ## Phase 2 デプロイ

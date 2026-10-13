@@ -5,12 +5,14 @@
 hanamii は公開 REST API v1（Bearer PAT `hnm_…`）と Agent Skill（`hanamii-sakura/hanamii-skills` の bash スクリプト）でエージェントからのデプロイに対応しているが、`public/llms.txt` や各ガイドに「専用 CLI と MCP サーバーはありません（2026年10月時点）」と明記されている。Backlog HANAMIIDEV-106 でも「API/CLI だけで開発を完結させたい」が挙がっている。
 
 今回つくるもの: npm パッケージ `hanamii`（名前は未取得を確認済み。npm 未ログインなので公開時に `npm login` が必要）。1 パッケージで
+
 - CLI `hanamii`（login / deploy / logs / env …）
 - ローカル stdio MCP サーバー `hanamii mcp`（Claude Code / Cursor / Codex から利用）
 
 を提供する。既存 API の範囲内で作り、hanamii-frontend 側の変更は行わない（ビルドログ API 等は後続）。
 
 **ユーザー決定事項**
+
 - 置き場所: 新リポジトリ `~/Documents/code/hanamii/hanamii-cli`（GitHub `hanamii-sakura/hanamii-cli`、public、MIT）
 - MCP: ローカル stdio のみ（リモート MCP は次フェーズ）
 - ログイン: PAT 貼り付け（ブラウザでトークン発行ページを開く → 貼り付け → 検証 → 保存）
@@ -35,15 +37,15 @@ hanamii は公開 REST API v1（Bearer PAT `hnm_…`）と Agent Skill（`hanami
 
 ## 1. 技術選定
 
-| 種別 | パッケージ | 理由 |
-|---|---|---|
-| dep | `commander` | サブコマンド・グローバルオプション・ヘルプ生成が揃った定番 |
-| dep | `@modelcontextprotocol/sdk` + `zod` | MCP 公式 SDK。zod は SDK の peer に合わせる |
-| dep | `yazl` | ストリーミング ZIP 書き出し。エントリを自前列挙するので symlink 除外・大容量でもメモリ非保持 |
-| dep | `ignore` | `.gitignore` / `.hanamiiignore` を正しく解釈 |
-| dep | `@clack/prompts` + `picocolors` | トークンのマスク入力・スピナー・確認 |
+| 種別 | パッケージ                                                                                                                                                  | 理由                                                                                         |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| dep  | `commander`                                                                                                                                                 | サブコマンド・グローバルオプション・ヘルプ生成が揃った定番                                   |
+| dep  | `@modelcontextprotocol/sdk` + `zod`                                                                                                                         | MCP 公式 SDK。zod は SDK の peer に合わせる                                                  |
+| dep  | `yazl`                                                                                                                                                      | ストリーミング ZIP 書き出し。エントリを自前列挙するので symlink 除外・大容量でもメモリ非保持 |
+| dep  | `ignore`                                                                                                                                                    | `.gitignore` / `.hanamiiignore` を正しく解釈                                                 |
+| dep  | `@clack/prompts` + `picocolors`                                                                                                                             | トークンのマスク入力・スピナー・確認                                                         |
 | HTTP | Node 20+ の global `fetch`。署名 URL への PUT だけ `node:https` + 明示 `Content-Length`（fetch のストリーム body は chunked になり署名 URL で拒否されうる） |
-| dev | `typescript` `tsup` `vitest` `msw` `eslint`(flat) `prettier` `@types/node` `@types/yazl` |
+| dev  | `typescript` `tsup` `vitest` `msw` `eslint`(flat) `prettier` `@types/node` `@types/yazl`                                                                    |
 
 `engines.node >= 20`、`"type":"module"`、`bin:{"hanamii":"dist/cli.js"}`、`files:["dist"]`。
 
@@ -103,21 +105,21 @@ MCP では stdout をプロトコル専用にし、ログは全て `console.erro
 
 ## 4. CLI コマンド（全コマンド `--json` / `--token` / `--workspace` 対応）
 
-| コマンド | 内容 |
-|---|---|
-| `login [--token hnm_..] [--no-browser]` | `https://hanamii.jp/account/settings/tokens` を開く → マスク入力 → `GET /user/tokens/current` で検証 → 保存 |
-| `logout` / `whoami` | 削除 / トークン名・scope・expiresAt・取得元(flag/env/config) |
-| `workspaces list` | |
-| `projects list [--all]` / `projects get <id\|name>` / `projects create --name --git owner/repo --ref main [--root]` / `projects delete <id\|name> [--yes]` | delete は名前再入力で確認、202 は operationId 表示 |
-| `deploy [--name <n> \| --project <id\|name>] [--dir .] [--env K=V ...] [--git] [--no-wait] [--timeout 900] [--no-gitignore]` | 省略時は `.hanamii/project.json`。成功時にリンクファイルを書く。bash スクリプトの置き換え |
-| `link <id\|name>` / `unlink` | |
-| `env list [--decrypt]` / `env set K=V ... [--plain] [--restart]` | 既定 secret。unset は API が無い旨を help に明記 |
-| `logs [--since -15m] [--limit 100] [--before ISO] [--follow]` | follow は 3 秒間隔ポーリング |
-| `restart` / `health-check get` / `health-check set --path /health [--port] \| --disable` | restart は noop を区別 |
-| `tokens list` / `tokens create --name --scope full_account\|workspace [--expires 30d]` / `tokens revoke <id>` | 平文は一度だけ表示 |
-| `db info` / `db tables` / `db rows <table> [--limit 50] [--offset 0]` | v1 は読取のみ |
-| `mcp [--allow-delete]` | stdio サーバー起動 |
-| `mcp install --client claude-code\|cursor\|codex\|claude-desktop [--run]` | 設定スニペット表示。`--run` は claude-code のみ `claude mcp add hanamii -- npx -y hanamii mcp` |
+| コマンド                                                                                                                                                   | 内容                                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `login [--token hnm_..] [--no-browser]`                                                                                                                    | `https://hanamii.jp/account/settings/tokens` を開く → マスク入力 → `GET /user/tokens/current` で検証 → 保存 |
+| `logout` / `whoami`                                                                                                                                        | 削除 / トークン名・scope・expiresAt・取得元(flag/env/config)                                                |
+| `workspaces list`                                                                                                                                          |                                                                                                             |
+| `projects list [--all]` / `projects get <id\|name>` / `projects create --name --git owner/repo --ref main [--root]` / `projects delete <id\|name> [--yes]` | delete は名前再入力で確認、202 は operationId 表示                                                          |
+| `deploy [--name <n> \| --project <id\|name>] [--dir .] [--env K=V ...] [--git] [--no-wait] [--timeout 900] [--no-gitignore]`                               | 省略時は `.hanamii/project.json`。成功時にリンクファイルを書く。bash スクリプトの置き換え                   |
+| `link <id\|name>` / `unlink`                                                                                                                               |                                                                                                             |
+| `env list [--decrypt]` / `env set K=V ... [--plain] [--restart]`                                                                                           | 既定 secret。unset は API が無い旨を help に明記                                                            |
+| `logs [--since -15m] [--limit 100] [--before ISO] [--follow]`                                                                                              | follow は 3 秒間隔ポーリング                                                                                |
+| `restart` / `health-check get` / `health-check set --path /health [--port] \| --disable`                                                                   | restart は noop を区別                                                                                      |
+| `tokens list` / `tokens create --name --scope full_account\|workspace [--expires 30d]` / `tokens revoke <id>`                                              | 平文は一度だけ表示                                                                                          |
+| `db info` / `db tables` / `db rows <table> [--limit 50] [--offset 0]`                                                                                      | v1 は読取のみ                                                                                               |
+| `mcp [--allow-delete]`                                                                                                                                     | stdio サーバー起動                                                                                          |
+| `mcp install --client claude-code\|cursor\|codex\|claude-desktop [--run]`                                                                                  | 設定スニペット表示。`--run` は claude-code のみ `claude mcp add hanamii -- npx -y hanamii mcp`              |
 
 プロジェクト解決: `prj_` 接頭辞→そのまま / 名前→`projects list` で検索（複数一致はエラー）/ 無指定→`.hanamii/project.json`。`.hanamii/` は ZIP から除外。
 
@@ -125,26 +127,26 @@ MCP では stdout をプロトコル専用にし、ログは全て `console.erro
 
 ## 5. MCP ツール（`hanamii mcp`）
 
-| ツール | 入力 (zod) | 返却 / annotations |
-|---|---|---|
-| `list_workspaces` | `{}` | readOnly |
-| `list_projects` | `{workspaceId?, limit?(1-100)}` | readOnly |
-| `get_project` | `{project}`(id or name) | url, latestDeployment, runtimeStatus。readOnly |
-| `deploy_project` | `{dir, name?, project?, workspaceId?, envs?:[{key,value,type?}], wait?=true, timeoutSec?(≤900)}` | `{projectId,url,readyState,errorCode,check?:{errors}}`。progressToken があれば進捗通知 |
-| `wait_deployment` | `{project, timeoutSec?(≤600)}` | 最終 readyState |
-| `get_logs` | `{project, since?='-15m', limit?(≤500), before?}` | text。readOnly |
-| `get_env` | `{project, decrypt?=false}` | 既定は key/type のみ、値はマスク |
-| `set_env` | `{project, envs[], restart?=false}` | |
-| `restart_project` | `{project}` | deployment / noop |
-| `get_health_check` / `set_health_check` | `{project}` / `{project,enabled,path?,port?}` | |
-| `db_list_tables` / `db_query_rows` | `{project}` / `{project,table,limit?(≤100),offset?}` | readOnly |
-| `delete_project`（`--allow-delete` 時のみ登録） | `{project, confirmName}` | 名前一致必須。destructiveHint |
+| ツール                                          | 入力 (zod)                                                                                       | 返却 / annotations                                                                     |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `list_workspaces`                               | `{}`                                                                                             | readOnly                                                                               |
+| `list_projects`                                 | `{workspaceId?, limit?(1-100)}`                                                                  | readOnly                                                                               |
+| `get_project`                                   | `{project}`(id or name)                                                                          | url, latestDeployment, runtimeStatus。readOnly                                         |
+| `deploy_project`                                | `{dir, name?, project?, workspaceId?, envs?:[{key,value,type?}], wait?=true, timeoutSec?(≤900)}` | `{projectId,url,readyState,errorCode,check?:{errors}}`。progressToken があれば進捗通知 |
+| `wait_deployment`                               | `{project, timeoutSec?(≤600)}`                                                                   | 最終 readyState                                                                        |
+| `get_logs`                                      | `{project, since?='-15m', limit?(≤500), before?}`                                                | text。readOnly                                                                         |
+| `get_env`                                       | `{project, decrypt?=false}`                                                                      | 既定は key/type のみ、値はマスク                                                       |
+| `set_env`                                       | `{project, envs[], restart?=false}`                                                              |                                                                                        |
+| `restart_project`                               | `{project}`                                                                                      | deployment / noop                                                                      |
+| `get_health_check` / `set_health_check`         | `{project}` / `{project,enabled,path?,port?}`                                                    |                                                                                        |
+| `db_list_tables` / `db_query_rows`              | `{project}` / `{project,table,limit?(≤100),offset?}`                                             | readOnly                                                                               |
+| `delete_project`（`--allow-delete` 時のみ登録） | `{project, confirmName}`                                                                         | 名前一致必須。destructiveHint                                                          |
 
 リソース `hanamii://docs/public-api`（`https://hanamii.jp/docs/public-api.md` をキャッシュ）。プロンプト `deploy_app`（事前確認→deploy_project→失敗時 get_logs）。
 
 ## 6. エッジケース
 
-- ZIP: symlink は skip して件数報告。`.env*` `.hanamii/` `*.zip` と既定除外（node_modules .git .next dist build vendor __pycache__ .venv venv __MACOSX .DS_Store）。`.gitignore` 尊重（`--no-gitignore`）。空 ZIP はローカルでエラー。tmp ZIP は finally で削除。
+- ZIP: symlink は skip して件数報告。`.env*` `.hanamii/` `*.zip` と既定除外（node_modules .git .next dist build vendor **pycache** .venv venv __MACOSX .DS_Store）。`.gitignore` 尊重（`--no-gitignore`）。空 ZIP はローカルでエラー。tmp ZIP は finally で削除。
 - ZIP 作成後に `POST /uploads` を発行する（署名 URL 15 分の期限切れ回避）。
 - checkId 使い捨て: create/deploy 失敗時の自動再試行はしない。
 - 複数 workspace は自動選択せず exit 6 で一覧表示。workspace scope トークンは workspaceId 省略。

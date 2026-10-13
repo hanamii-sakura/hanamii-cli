@@ -8,7 +8,7 @@
 
 ## Phase 1 設定と API
 
-- [ ] config/paths + store + resolve（テスト: 優先順位、0600）
+- [x] config/paths + store + resolve（テスト: 優先順位、0600）
 - [ ] api/http（ストリーム JSON、body.error、429 backoff、timeout）+ errors
 - [ ] api/client 全エンドポイント + types（msw テスト）
 - [ ] login / logout / whoami / workspaces list

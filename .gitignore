@@ -6,3 +6,4 @@ coverage/
 .env
 .env.*
 .hanamii/
+.codex-prompt-*.md

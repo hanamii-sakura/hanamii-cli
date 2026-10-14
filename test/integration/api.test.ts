@@ -39,6 +39,20 @@ describe.skipIf(!token)('公開 API 読取', () => {
   })
 })
 
+async function waitUntilDeleted(projectId: string, timeoutMs = 180_000): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    try {
+      await client.getProject(projectId)
+    } catch (error) {
+      if ((error as { status?: number }).status === 404) return true
+      throw error
+    }
+    await new Promise((resolve) => setTimeout(resolve, 5_000))
+  }
+  return false
+}
+
 const workspaceId = process.env.HANAMII_E2E_WORKSPACE
 const dir = fileURLToPath(new URL('../fixtures/sample-node-app/', import.meta.url))
 
@@ -51,10 +65,8 @@ describe.skipIf(!token || process.env.HANAMII_E2E_DEPLOY !== '1' || !workspaceId
       try {
         if (projectId) {
           await client.deleteProject(projectId)
-          await expect(client.getProject(projectId)).rejects.toMatchObject({
-            status: 404,
-            code: 'not_found',
-          })
+          // 削除は非同期（operationId を返す）。完了まで ID 指定の GET は返り続けるので 404 まで待つ
+          await expect(waitUntilDeleted(projectId)).resolves.toBe(true)
         }
       } finally {
         await removeProjectLink(dir)

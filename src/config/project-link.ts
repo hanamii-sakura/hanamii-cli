@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rename, rm, rmdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
 export interface ProjectLink {
@@ -59,4 +59,6 @@ export async function writeProjectLink(dir: string, link: ProjectLink): Promise<
 }
 export async function removeProjectLink(dir: string): Promise<void> {
   await rm(linkPath(dir), { force: true })
+  // 他のファイルが無ければディレクトリも残さない（ENOTEMPTY や ENOENT は無視）
+  await rmdir(join(dir, '.hanamii')).catch(() => undefined)
 }

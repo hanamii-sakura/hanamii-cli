@@ -36,7 +36,7 @@
 
 - [x] `--help` のコマンド順を整理（login/logout/whoami → workspaces → deploy/link/unlink → projects → env/logs/restart/health-check → tokens → db → mcp）、engines を `>=20.3`（AbortSignal.any 使用のため）
 - [x] 統合テスト（HANAMII_TOKEN があるときだけ実行、`npm run test:integration`）
-- [ ] README（日本語 README.md と英語 README.en.md）
+- [x] README（日本語 README.md と英語 README.en.md）
 - [ ] release.yml で v0.1.0 公開、npx 検証
 - [ ] hanamii-skills を `npx hanamii deploy` に切替、hanamii-frontend の llms.txt / ガイドの文言更新（別 PR）
 - [ ] projects_index.md に hanamii-cli を追記

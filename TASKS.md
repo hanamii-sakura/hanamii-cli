@@ -15,7 +15,7 @@
 
 ## Phase 2 デプロイ
 
-- [ ] zip/walk + build + precheck（fixtures）
+- [x] zip/walk + build + precheck（fixtures）
 - [ ] api/upload-put（ローカル http サーバーで検証）
 - [ ] core/workspace, project-resolve, project-link
 - [ ] core/deploy + poll + `deploy` コマンド（--no-wait / --timeout / --env / --git）

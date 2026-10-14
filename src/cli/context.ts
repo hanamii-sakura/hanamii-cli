@@ -1,3 +1,4 @@
+import type { InstallRunner } from '../mcp/install.js'
 import { spawn } from 'node:child_process'
 
 import { createClient } from '../api/client.js'
@@ -12,6 +13,7 @@ export interface GlobalOptions {
   json?: boolean
 }
 export interface CliDependencies extends ConfigOptions {
+  runMcpInstall?: InstallRunner
   cwd?: string
   promptProjectName?: (name: string) => Promise<string | undefined>
   fetch?: typeof globalThis.fetch

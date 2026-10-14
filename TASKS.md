@@ -30,7 +30,7 @@
 
 - [x] mcp/server + 読取系ツール（InMemoryTransport テスト）
 - [x] deploy_project / wait_deployment（progress 通知）、set_env、restart、delete(opt-in)
-- [ ] resource / prompt、`mcp install`
+- [x] resource / prompt、`mcp install`
 
 ## Phase 5 仕上げ
 

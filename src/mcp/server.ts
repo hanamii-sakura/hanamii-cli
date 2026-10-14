@@ -1,3 +1,5 @@
+import { registerResources } from './resources.js'
+import { registerPrompts } from './prompts.js'
 import { register as register8 } from './tools/deploy-project.js'
 import { register as register9 } from './tools/wait-deployment.js'
 import { register as register10 } from './tools/set-env.js'
@@ -34,6 +36,8 @@ export function createMcpServer(options: ServerOptions = {}): McpServer {
   register11(server, context)
   register12(server, context)
   if (options.allowDelete) register13(server, context)
+  registerResources(server, options.fetch)
+  registerPrompts(server)
   return server
 }
 export async function startMcpServer(options: ServerOptions = {}): Promise<McpServer> {

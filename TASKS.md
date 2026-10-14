@@ -38,5 +38,5 @@
 - [x] 統合テスト（HANAMII_TOKEN があるときだけ実行、`npm run test:integration`）
 - [x] README（日本語 README.md と英語 README.en.md）
 - [x] v0.1.0 を npm に公開（2FA 有効化後にローカルから publish）、`npx -y hanamii@latest --version` と MCP 起動を検証。release.yml は公開済みバージョンをスキップ
-- [ ] hanamii-skills を `npx hanamii deploy` に切替、hanamii-frontend の llms.txt / ガイドの文言更新（別 PR）
+- [x] hanamii-skills を `npx hanamii deploy` に切替（hanamii-skills#1）、hanamii-frontend の llms.txt / ガイドの文言更新（PR 作成済み、マージ待ち）
 - [x] projects_index.md に hanamii-cli を追記（状態も更新済み）

@@ -39,4 +39,4 @@
 - [x] README（日本語 README.md と英語 README.en.md）
 - [ ] release.yml で v0.1.0 公開、npx 検証
 - [ ] hanamii-skills を `npx hanamii deploy` に切替、hanamii-frontend の llms.txt / ガイドの文言更新（別 PR）
-- [ ] projects_index.md に hanamii-cli を追記
+- [x] projects_index.md に hanamii-cli を追記（状態も更新済み）

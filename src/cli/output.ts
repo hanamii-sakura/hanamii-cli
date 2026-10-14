@@ -25,6 +25,15 @@ export function createOutput(stdout: (text: string) => void, stderr: (text: stri
     return redact(text)
   }
   return {
+    // 発行直後の bearerToken だけを一度表示する。他のフィールドは通常どおりマスクする。
+    createdToken: (metadata: unknown, bearerToken: string, json: boolean) => {
+      secrets.add(bearerToken)
+      stdout(
+        json
+          ? `${JSON.stringify({ token: JSON.parse(clean(JSON.stringify(metadata))) as unknown, bearerToken })}\n`
+          : `トークンを作成しました。この値は一度だけ表示されます。\n${bearerToken}\n`,
+      )
+    },
     remember: (token: string | undefined) => {
       if (token) secrets.add(token)
     },

@@ -1,3 +1,8 @@
+import { registerTokens } from './cli/commands/tokens.js'
+import { registerHealthCheck } from './cli/commands/health-check.js'
+import { registerRestart } from './cli/commands/restart.js'
+import { registerLogs } from './cli/commands/logs.js'
+import { registerEnv } from './cli/commands/env.js'
 import { registerProjects } from './cli/commands/projects.js'
 import { registerLink } from './cli/commands/link.js'
 import { registerDeploy } from './cli/commands/deploy.js'
@@ -35,6 +40,11 @@ function createProgram(context: CliContext, quietErrors = false): Command {
       writeOut: context.output.write,
       writeErr: quietErrors ? () => undefined : context.output.error,
     })
+  registerEnv(program, context)
+  registerLogs(program, context)
+  registerRestart(program, context)
+  registerHealthCheck(program, context)
+  registerTokens(program, context)
   registerProjects(program, context)
   registerLink(program, context)
   registerDeploy(program, context)

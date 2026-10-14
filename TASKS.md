@@ -17,7 +17,7 @@
 
 - [x] zip/walk + build + precheck（fixtures）
 - [x] api/upload-put（ローカル http サーバーで検証）
-- [ ] core/workspace, project-resolve, project-link
+- [x] core/workspace, project-resolve, project-link
 - [ ] core/deploy + poll + `deploy` コマンド（--no-wait / --timeout / --env / --git）
 - [ ] projects list/get/create/delete, link/unlink
 

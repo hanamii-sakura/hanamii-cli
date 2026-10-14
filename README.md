@@ -26,3 +26,14 @@ npm run lint && npm run typecheck
 - 公開 API の正本: https://hanamii.jp/docs/public-api.md
 
 ライセンスは MIT です。
+
+統合テストは `HANAMII_TOKEN` 設定時だけ実 API に接続します。未設定ならスキップします。
+
+```bash
+HANAMII_TOKEN=... npm run test:integration
+```
+
+`...` はプレースホルダーです。`HANAMII_BASE_URL` で接続先を変更できます。
+読取テストに加え、`HANAMII_E2E_DEPLOY=1` と `HANAMII_E2E_WORKSPACE`（workspace ID）を設定すると、
+fixture の新規デプロイ・ログ・env・再起動・削除を実行します。作成したプロジェクトとリンクは終了時に削除します。
+CI では実行しません。

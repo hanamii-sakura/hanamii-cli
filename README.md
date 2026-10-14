@@ -22,7 +22,7 @@ npm test
 npm run lint && npm run typecheck
 ```
 
-- Node.js 20 以上
+- Node.js 20.3 以上
 - 公開 API の正本: https://hanamii.jp/docs/public-api.md
 
 ライセンスは MIT です。

@@ -1,13 +1,3 @@
-import { registerMcp } from './cli/commands/mcp.js'
-import { registerDb } from './cli/commands/db.js'
-import { registerTokens } from './cli/commands/tokens.js'
-import { registerHealthCheck } from './cli/commands/health-check.js'
-import { registerRestart } from './cli/commands/restart.js'
-import { registerLogs } from './cli/commands/logs.js'
-import { registerEnv } from './cli/commands/env.js'
-import { registerProjects } from './cli/commands/projects.js'
-import { registerLink } from './cli/commands/link.js'
-import { registerDeploy } from './cli/commands/deploy.js'
 import { OperationError } from './core/errors.js'
 import { realpathSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -24,6 +14,16 @@ import { registerLogin } from './cli/commands/login.js'
 import { registerLogout } from './cli/commands/logout.js'
 import { registerWhoami } from './cli/commands/whoami.js'
 import { registerWorkspaces } from './cli/commands/workspaces.js'
+import { registerDeploy } from './cli/commands/deploy.js'
+import { registerLink } from './cli/commands/link.js'
+import { registerProjects } from './cli/commands/projects.js'
+import { registerEnv } from './cli/commands/env.js'
+import { registerLogs } from './cli/commands/logs.js'
+import { registerRestart } from './cli/commands/restart.js'
+import { registerHealthCheck } from './cli/commands/health-check.js'
+import { registerTokens } from './cli/commands/tokens.js'
+import { registerDb } from './cli/commands/db.js'
+import { registerMcp } from './cli/commands/mcp.js'
 import { exitCode } from './cli/output.js'
 
 function createProgram(context: CliContext, quietErrors = false): Command {
@@ -42,20 +42,20 @@ function createProgram(context: CliContext, quietErrors = false): Command {
       writeOut: context.output.write,
       writeErr: quietErrors ? () => undefined : context.output.error,
     })
-  registerMcp(program, context)
-  registerDb(program, context)
+  registerLogin(program, context)
+  registerLogout(program, context)
+  registerWhoami(program, context)
+  registerWorkspaces(program, context)
+  registerDeploy(program, context)
+  registerLink(program, context)
+  registerProjects(program, context)
   registerEnv(program, context)
   registerLogs(program, context)
   registerRestart(program, context)
   registerHealthCheck(program, context)
   registerTokens(program, context)
-  registerProjects(program, context)
-  registerLink(program, context)
-  registerDeploy(program, context)
-  registerLogin(program, context)
-  registerLogout(program, context)
-  registerWhoami(program, context)
-  registerWorkspaces(program, context)
+  registerDb(program, context)
+  registerMcp(program, context)
   return program
 }
 

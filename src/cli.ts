@@ -1,3 +1,5 @@
+import { registerProjects } from './cli/commands/projects.js'
+import { registerLink } from './cli/commands/link.js'
 import { registerDeploy } from './cli/commands/deploy.js'
 import { OperationError } from './core/errors.js'
 import { realpathSync } from 'node:fs'
@@ -33,6 +35,8 @@ function createProgram(context: CliContext, quietErrors = false): Command {
       writeOut: context.output.write,
       writeErr: quietErrors ? () => undefined : context.output.error,
     })
+  registerProjects(program, context)
+  registerLink(program, context)
   registerDeploy(program, context)
   registerLogin(program, context)
   registerLogout(program, context)

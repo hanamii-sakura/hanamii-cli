@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 
 import { createClient } from '../api/client.js'
-import { AuthError } from '../api/errors.js'
+import { AuthError, redact } from '../api/errors.js'
 import { type ConfigOptions } from '../config/paths.js'
 import { resolveConfig } from '../config/resolve.js'
 import { createOutput } from './output.js'
@@ -12,6 +12,8 @@ export interface GlobalOptions {
   json?: boolean
 }
 export interface CliDependencies extends ConfigOptions {
+  cwd?: string
+  promptProjectName?: (name: string) => Promise<string | undefined>
   fetch?: typeof globalThis.fetch
   stdout?: (text: string) => void
   stderr?: (text: string) => void
@@ -60,6 +62,15 @@ async function promptToken(): Promise<string | undefined> {
   return isCancel(result) ? undefined : result
 }
 
+async function promptProjectName(name: string): Promise<string | undefined> {
+  const { text, isCancel } = await import('@clack/prompts')
+  const result = await text({
+    message: `削除するプロジェクト名「${redact(name)}」を再入力してください`,
+    output: process.stderr,
+  })
+  return isCancel(result) ? undefined : result
+}
+
 export function createContext(deps: CliDependencies = {}) {
   const output = createOutput(
     deps.stdout ?? ((text) => process.stdout.write(text)),
@@ -71,6 +82,7 @@ export function createContext(deps: CliDependencies = {}) {
     output,
     isInteractive: deps.isInteractive ?? Boolean(process.stdin.isTTY && process.stderr.isTTY),
     promptToken: deps.promptToken ?? promptToken,
+    promptProjectName: deps.promptProjectName ?? promptProjectName,
     openBrowser: deps.openBrowser ?? ((url: string) => openBrowser(url, deps.platform)),
     client: (token: string, baseUrl: string) => {
       output.remember(token)

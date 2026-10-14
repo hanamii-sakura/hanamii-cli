@@ -12,6 +12,7 @@ export interface RequestOptions {
   body?: unknown
   query?: object
   text?: boolean
+  retryRateLimit?: boolean
   longRunning?: boolean
   timeoutMs?: number
   signal?: AbortSignal
@@ -129,7 +130,7 @@ export function createHttp(options: HttpOptions) {
           response.status === 429 ||
           (hasError && (parsed as { error?: { code?: string } }).error?.code === 'rate_limited')
         ) {
-          if (rateRetries++ < 3) {
+          if (requestOptions.retryRateLimit !== false && rateRetries++ < 3) {
             const reset = Number(response.headers.get('X-RateLimit-Reset'))
             await wait(
               Math.min(

@@ -1,7 +1,7 @@
 import { createHttp, type HttpOptions, type RequestOptions } from './http.js'
 import type * as T from './types.js'
 
-export type CallOptions = Pick<RequestOptions, 'signal' | 'timeoutMs'>
+export type CallOptions = Pick<RequestOptions, 'signal' | 'timeoutMs' | 'retryRateLimit'>
 const segment = (value: string) => {
   if (!value || value === '.' || value === '..') throw new Error('パスの識別子が不正です')
   return encodeURIComponent(value)

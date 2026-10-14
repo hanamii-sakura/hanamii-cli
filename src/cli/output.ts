@@ -1,8 +1,17 @@
+import { OperationError } from '../core/errors.js'
+import { WorkspaceAmbiguousError } from '../core/workspace.js'
+import { PrecheckError } from '../zip/precheck.js'
 import { AuthError, NetworkError, redact } from '../api/errors.js'
 
 export class UsageError extends Error {}
 
 export function exitCode(error: unknown): number {
+  if (
+    error instanceof OperationError ||
+    error instanceof WorkspaceAmbiguousError ||
+    error instanceof PrecheckError
+  )
+    return error.exitCode
   if (error instanceof AuthError) return 3
   if (error instanceof UsageError) return 2
   if (error instanceof NetworkError && error.code === 'timeout') return 11

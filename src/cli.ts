@@ -1,3 +1,5 @@
+import { registerDeploy } from './cli/commands/deploy.js'
+import { OperationError } from './core/errors.js'
 import { realpathSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { Command, CommanderError } from 'commander'
@@ -31,6 +33,7 @@ function createProgram(context: CliContext, quietErrors = false): Command {
       writeOut: context.output.write,
       writeErr: quietErrors ? () => undefined : context.output.error,
     })
+  registerDeploy(program, context)
   registerLogin(program, context)
   registerLogout(program, context)
   registerWhoami(program, context)
@@ -61,7 +64,13 @@ export async function main(
     const code = error instanceof CommanderError ? 2 : exitCode(error)
     const message = error instanceof Error ? error.message : '処理に失敗しました'
     const json = program.opts<GlobalOptions>().json || argv.includes('--json')
-    const body = { error: { message, exitCode: code } }
+    const body = {
+      error: {
+        message,
+        exitCode: code,
+        ...(error instanceof OperationError && error.details ? { details: error.details } : {}),
+      },
+    }
     context.output.error(`${json ? JSON.stringify(body) : message}\n`)
     return code
   }

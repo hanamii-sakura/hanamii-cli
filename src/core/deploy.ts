@@ -52,6 +52,15 @@ export async function deploy(client: HanamiiClient, options: DeployOptions): Pro
   const notify = (event: DeployEvent) => options.onEvent?.(event)
   let zip: Awaited<ReturnType<typeof buildZip>> | undefined
   try {
+    // ローカルで判定できる事前検証は API を呼ぶ前に済ませ、失敗を早く返す
+    let listing: Awaited<ReturnType<typeof walk>> | undefined
+    if (!options.git) {
+      notify({ type: 'precheck' })
+      listing = await walk(options.dir, {
+        ...(options.gitignore === undefined ? {} : { gitignore: options.gitignore }),
+      })
+      await precheck(listing.dir, listing)
+    }
     const projectId = options.name
       ? undefined
       : await resolveProject(client, {
@@ -67,13 +76,8 @@ export async function deploy(client: HanamiiClient, options: DeployOptions): Pro
       workspaceId = workspaceId ?? project.workspaceId
     } else workspaceId = await resolveWorkspace(client, workspaceId)
     let source: DeployInput['source']
-    if (options.git) source = { type: 'git' }
+    if (options.git || !listing) source = { type: 'git' }
     else {
-      notify({ type: 'precheck' })
-      const listing = await walk(options.dir, {
-        ...(options.gitignore === undefined ? {} : { gitignore: options.gitignore }),
-      })
-      await precheck(listing.dir, listing)
       zip = await buildZip(listing.dir, {}, listing)
       notify({ type: 'zip', fileCount: zip.fileCount, bytes: zip.bytes, skipped: zip.skipped })
       const { upload } = await client.createUpload({

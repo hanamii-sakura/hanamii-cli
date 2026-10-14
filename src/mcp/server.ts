@@ -1,3 +1,9 @@
+import { register as register8 } from './tools/deploy-project.js'
+import { register as register9 } from './tools/wait-deployment.js'
+import { register as register10 } from './tools/set-env.js'
+import { register as register11 } from './tools/restart-project.js'
+import { register as register12 } from './tools/set-health-check.js'
+import { register as register13 } from './tools/delete-project.js'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { VERSION } from '../version.js'
@@ -22,6 +28,12 @@ export function createMcpServer(options: ServerOptions = {}): McpServer {
   register5(server, context)
   register6(server, context)
   register7(server, context)
+  register8(server, context)
+  register9(server, context)
+  register10(server, context)
+  register11(server, context)
+  register12(server, context)
+  if (options.allowDelete) register13(server, context)
   return server
 }
 export async function startMcpServer(options: ServerOptions = {}): Promise<McpServer> {

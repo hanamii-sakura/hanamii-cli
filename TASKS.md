@@ -29,7 +29,7 @@
 ## Phase 4 MCP
 
 - [x] mcp/server + 読取系ツール（InMemoryTransport テスト）
-- [ ] deploy_project / wait_deployment（progress 通知）、set_env、restart、delete(opt-in)
+- [x] deploy_project / wait_deployment（progress 通知）、set_env、restart、delete(opt-in)
 - [ ] resource / prompt、`mcp install`
 
 ## Phase 5 仕上げ

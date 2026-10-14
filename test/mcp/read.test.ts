@@ -55,8 +55,13 @@ it('読取8ツールの一覧・annotations・HTTP応答とstdout非出力', asy
   const session = await connect()
   try {
     const list = await session.client.listTools()
-    expect(list.tools.map((t) => t.name).sort()).toEqual(responses.map((r) => r[0]).sort())
-    for (const tool of list.tools)
+    expect(
+      list.tools
+        .filter((t) => t.annotations?.readOnlyHint && t.name !== 'wait_deployment')
+        .map((t) => t.name)
+        .sort(),
+    ).toEqual(responses.map((r) => r[0]).sort())
+    for (const tool of list.tools.filter((t) => t.annotations?.readOnlyHint))
       expect(tool.annotations).toMatchObject({
         readOnlyHint: true,
         destructiveHint: false,

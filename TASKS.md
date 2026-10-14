@@ -24,7 +24,7 @@
 ## Phase 3 運用コマンド
 
 - [x] env list/set, logs(+follow), restart, health-check, tokens
-- [ ] db info/tables/rows
+- [x] db info/tables/rows
 
 ## Phase 4 MCP
 

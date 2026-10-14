@@ -1,3 +1,4 @@
+import { registerDb } from './cli/commands/db.js'
 import { registerTokens } from './cli/commands/tokens.js'
 import { registerHealthCheck } from './cli/commands/health-check.js'
 import { registerRestart } from './cli/commands/restart.js'
@@ -40,6 +41,7 @@ function createProgram(context: CliContext, quietErrors = false): Command {
       writeOut: context.output.write,
       writeErr: quietErrors ? () => undefined : context.output.error,
     })
+  registerDb(program, context)
   registerEnv(program, context)
   registerLogs(program, context)
   registerRestart(program, context)

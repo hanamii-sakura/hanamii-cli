@@ -8,13 +8,17 @@ export interface ProjectLink {
   workspaceId: string
 }
 const linkPath = (dir: string) => join(dir, '.hanamii', 'project.json')
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+/** 実 API のプロジェクト ID は UUID。仕様書の例にある prj_ 接頭辞も受け付ける。 */
+export function looksLikeProjectId(value: string): boolean {
+  return UUID_PATTERN.test(value) || (value.startsWith('prj_') && value.length > 4)
+}
 function valid(value: unknown): value is ProjectLink {
   if (!value || typeof value !== 'object') return false
   const v = value as Partial<ProjectLink>
   return (
     typeof v.projectId === 'string' &&
-    v.projectId.startsWith('prj_') &&
-    v.projectId.length > 4 &&
+    looksLikeProjectId(v.projectId) &&
     typeof v.name === 'string' &&
     Boolean(v.name) &&
     typeof v.workspaceId === 'string' &&

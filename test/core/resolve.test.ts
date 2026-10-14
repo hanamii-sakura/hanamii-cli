@@ -109,3 +109,19 @@ it.each(['{', '{}', '{"projectId":"bad","name":"app","workspaceId":"ws_1"}'])(
     await expect(readProjectLink(dir)).rejects.toThrow('形式')
   },
 )
+
+it('UUID 形式の ID は一覧検索せずそのまま返す', async () => {
+  const id = 'd4d8450a-c1b5-4488-ab24-f0d436394ee0'
+  expect(await resolveProject(client, { project: id })).toBe(id)
+  expect(await resolveProject(client, { project: id.toUpperCase() })).toBe(id.toUpperCase())
+})
+
+it('UUID の projectId でリンクを書き込める', async () => {
+  const link = {
+    projectId: 'd4d8450a-c1b5-4488-ab24-f0d436394ee0',
+    name: 'app',
+    workspaceId: 'ws_1',
+  }
+  await writeProjectLink(dir, link)
+  expect(await readProjectLink(dir)).toEqual(link)
+})

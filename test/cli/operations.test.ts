@@ -167,7 +167,7 @@ it('health-check の取得、有効化、無効化、引数検証', async () => 
   ])
     expect(await run('health-check', 'set', ...args)).toBe(2)
 })
-it('logs は text をそのまま出力、JSON は logs 配列、クエリを転送', async () => {
+it('logs は text を末尾改行付きで出力、JSON は logs 配列、クエリを転送', async () => {
   const logs = [{ timestamp: '2026-10-01T00:00:00Z', message: 'hello' }]
   server.use(
     http.get(`${base}/projects/prj_app/logs`, ({ request }) => {
@@ -180,7 +180,7 @@ it('logs は text をそのまま出力、JSON は logs 配列、クエリを転
     }),
   )
   expect(await run('logs', '--since', '-15m')).toBe(0)
-  expect(stdout).toBe('09:00:00 hello')
+  expect(stdout).toBe('09:00:00 hello\n')
   stdout = ''
   expect(await run('logs', '--json', '--before', '2026-10-02T00:00:00Z')).toBe(0)
   expect(JSON.parse(stdout)).toEqual(logs)

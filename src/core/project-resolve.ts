@@ -1,6 +1,6 @@
 import type { HanamiiClient } from '../api/client.js'
 import type { Project } from '../api/types.js'
-import { readProjectLink } from '../config/project-link.js'
+import { looksLikeProjectId, readProjectLink } from '../config/project-link.js'
 
 export interface ProjectOptions {
   project?: string
@@ -34,14 +34,14 @@ export async function resolveProject(
   options: ProjectOptions = {},
 ): Promise<string> {
   if (options.project) {
-    if (options.project.startsWith('prj_')) return options.project
+    if (looksLikeProjectId(options.project)) return options.project
     const matches = (await listAllProjects(client, options.workspaceId)).filter(
       (p) => p.name === options.project,
     )
     if (matches.length === 0) throw new Error('プロジェクトが見つかりません')
     if (matches.length > 1)
       throw new Error(
-        '同名のプロジェクトが複数あります。--workspace または prj_ ID で指定してください',
+        '同名のプロジェクトが複数あります。--workspace またはプロジェクト ID で指定してください',
       )
     return matches[0]!.id
   }

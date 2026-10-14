@@ -36,7 +36,10 @@ export function registerLogs(program: Command, context: CliContext): void {
       if (!options.follow) {
         const { client, id } = await projectContext(context, options)
         if (options.json) context.output.result((await fetchLogs(client, id, query)).logs, '', true)
-        else context.output.write(await client.getLogsText(id, query))
+        else {
+          const text = await client.getLogsText(id, query)
+          context.output.write(text.length === 0 || text.endsWith('\n') ? text : `${text}\n`)
+        }
         return
       }
       const controller = new AbortController()

@@ -44,3 +44,4 @@
 ## Phase 6 MCP 品質
 
 - [x] forecall lint（規則 v2）で MCP ツールを採点し、説明文・引数説明・instructions を英語化、全ツールに outputSchema を追加（25.4 → 93.4）。エラー応答は structuredContent なし。`test/mcp/descriptions.test.ts` で回帰防止、本番で MCP 統合テストを再実行
+- [x] v0.1.1 を npm に公開（2026-10-15、ローカルから publish。`npx -y hanamii@latest --version` が 0.1.1、MCP 起動で 13 ツール全てに outputSchema を確認）

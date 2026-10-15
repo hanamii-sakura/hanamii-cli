@@ -1,6 +1,6 @@
 {
   "name": "hanamii",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "hanamii CLI と MCP サーバー。国産 PaaS hanamii に ZIP からデプロイ、ログ取得、環境変数の設定、MCP 経由でのエージェント連携を行う。",
   "keywords": [
     "hanamii",

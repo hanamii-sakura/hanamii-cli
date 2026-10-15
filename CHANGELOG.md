@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- MCP サーバーの統合テストを追加（stdio で起動し、deploy_project から delete_project までを実 API で確認。`npm run test:integration`）
+
 ## 0.1.0 - 2026-10-14
 
 初回リリース。npm パッケージ `hanamii` に CLI と stdio MCP サーバーを同梱。

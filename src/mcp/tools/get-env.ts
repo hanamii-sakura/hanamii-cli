@@ -3,12 +3,23 @@ import { z } from 'zod'
 import { resolveProject } from '../../core/project-resolve.js'
 import { readOnly, type ToolContext } from '../context.js'
 import { format } from '../format.js'
+import { envsOut, projectParam } from '../schemas.js'
 export function register(server: McpServer, context: ToolContext) {
   server.registerTool(
     'get_env',
     {
-      description: '環境変数を取得。既定は key/type のみ。値が必要な場合だけ decrypt=true',
-      inputSchema: { project: z.string().min(1), decrypt: z.boolean().default(false) },
+      description:
+        'List the environment variables stored for a project. Use it to check which keys are configured. By default (decrypt=false) it returns only key and type, never the value. Set decrypt=true only when the value itself is required, and do not copy decrypted values anywhere else: they are secrets. Use set_env to add or change variables. Requires a token that can read the project (any role). Returns envs[]{key, type: secret|plain, value (only when decrypt=true)}. Example: {"project": "my-app"}',
+      inputSchema: {
+        project: projectParam,
+        decrypt: z
+          .boolean()
+          .default(false)
+          .describe(
+            'When true, include the decrypted value of each variable. Default false returns key and type only',
+          ),
+      },
+      outputSchema: envsOut,
       annotations: readOnly,
     },
     (args) =>

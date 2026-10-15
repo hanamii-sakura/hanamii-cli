@@ -40,3 +40,7 @@
 - [x] v0.1.0 を npm に公開（2FA 有効化後にローカルから publish）、`npx -y hanamii@latest --version` と MCP 起動を検証。release.yml は公開済みバージョンをスキップ
 - [x] hanamii-skills を `npx hanamii deploy` に切替（hanamii-skills#1）、hanamii-frontend の llms.txt / ガイドの文言更新（PR 作成済み、マージ待ち）
 - [x] projects_index.md に hanamii-cli を追記（状態も更新済み）
+
+## Phase 6 MCP 品質
+
+- [x] forecall lint（規則 v2）で MCP ツールを採点し、説明文・引数説明・instructions を英語化、全ツールに outputSchema を追加（25.4 → 93.4）。エラー応答は structuredContent なし。`test/mcp/descriptions.test.ts` で回帰防止、本番で MCP 統合テストを再実行

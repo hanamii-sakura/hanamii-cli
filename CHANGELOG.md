@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- MCP: ツール説明・引数説明・サーバー `instructions` を英語で書き直し（いつ使うか・使わないか、返り値、例、権限を明記）、全ツールに `outputSchema` を追加。forecall lint（規則 v2）の平均点 25.4 → 93.4
+- MCP: エラー応答は `structuredContent` を付けず `content` のみ返す（outputSchema を検証するクライアントで失敗しないため）
 - MCP サーバーの統合テストを追加（stdio で起動し、deploy_project から delete_project までを実 API で確認。`npm run test:integration`）
 
 ## 0.1.0 - 2026-10-14

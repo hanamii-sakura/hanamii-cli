@@ -171,7 +171,7 @@ env_vars = ["HANAMII_TOKEN"]
 | `db_query_rows`    | `project`、`table`、`limit`（既定50、1〜100）、`offset`（既定0、0〜1000000）。SQL は不可                      |
 | `delete_project`   | `project`、現在の名前と一致する `confirmName`。`--allow-delete` 指定時だけ登録                                |
 
-`envs` は `{key, value, type?}` の配列で、type は `secret`（既定）または `plain` です。削除を有効にする場合は起動引数に `--allow-delete` を追加します。`deploy_project` / `wait_deployment` は progressToken がある場合に進捗を通知します。
+ツールの説明文・引数説明・サーバーの instructions はモデル向けに英語で書いてあり、全ツールに `outputSchema` が付いています（forecall lint 規則 v2 で平均 93 点）。`envs` は `{key, value, type?}` の配列で、type は `secret`（既定）または `plain` です。削除を有効にする場合は起動引数に `--allow-delete` を追加します。`deploy_project` / `wait_deployment` は progressToken がある場合に進捗を通知します。
 
 リソース `hanamii://docs/public-api` と、デプロイ手順を案内するプロンプト `deploy_app` も提供します。
 

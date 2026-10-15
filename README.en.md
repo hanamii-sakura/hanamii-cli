@@ -171,7 +171,7 @@ env_vars = ["HANAMII_TOKEN"]
 | `db_query_rows`    | `project`, `table`, `limit` (default 50, 1–100), `offset` (default 0, 0–1000000). No SQL                                 |
 | `delete_project`   | `project`, `confirmName` matching the current project name. Registered only with `--allow-delete`                        |
 
-`envs` is an array of `{key, value, type?}`; type is `secret` (default) or `plain`. Add `--allow-delete` to the server arguments to enable deletion. `deploy_project` / `wait_deployment` send progress notifications when a progressToken is provided.
+Tool descriptions, parameter descriptions and the server instructions are written in English for the model, and every tool has an `outputSchema` (forecall lint rules v2: average score 93). `envs` is an array of `{key, value, type?}`; type is `secret` (default) or `plain`. Add `--allow-delete` to the server arguments to enable deletion. `deploy_project` / `wait_deployment` send progress notifications when a progressToken is provided.
 
 The server also provides the `hanamii://docs/public-api` resource and the `deploy_app` prompt for deployment guidance.
 

@@ -19,8 +19,20 @@ import { register as register5 } from './tools/get-health-check.js'
 import { register as register6 } from './tools/db-list-tables.js'
 import { register as register7 } from './tools/db-query-rows.js'
 
+/** クライアントがツール説明より先に読む、サーバー全体の使い方（モデル向けなので英語）。 */
+export const INSTRUCTIONS = [
+  'MCP server for hanamii (https://hanamii.jp), a hosting service that publishes Node.js, PHP and Python apps from a ZIP upload. Through this server an agent can deploy, read runtime logs, manage environment variables and health checks, and read the attached database.',
+  'Typical flow: to publish a new app call deploy_project with dir and name. To update an existing app call deploy_project with dir and project (project can be omitted when dir contains .hanamii/project.json). When a deployment fails, call get_project to read latestDeployment.errorCode, then get_logs for the runtime logs. Build logs are not available here; check them in the dashboard.',
+  'The project argument of every tool accepts either the project ID (UUID) or the exact project name; list_projects shows both.',
+  'set_env only adds or overwrites variables (deleting is not possible) and nothing takes effect until restart_project or a new deployment. get_env hides values unless decrypt=true.',
+  'Read-only tools: list_workspaces, list_projects, get_project, get_logs, get_env, get_health_check, db_list_tables, db_query_rows. Tools that change state: deploy_project, wait_deployment, set_env, restart_project, set_health_check. delete_project is available only when the server was started with `hanamii mcp --allow-delete`.',
+  'Authentication comes from the HANAMII_TOKEN environment variable or the config file written by `hanamii login`. Never write tokens or secret values into responses, logs or code.',
+].join('\n')
 export function createMcpServer(options: ServerOptions = {}): McpServer {
-  const server = new McpServer({ name: 'hanamii', version: VERSION })
+  const server = new McpServer(
+    { name: 'hanamii', version: VERSION },
+    { instructions: INSTRUCTIONS },
+  )
   const context = createToolContext(options)
   register0(server, context)
   register1(server, context)

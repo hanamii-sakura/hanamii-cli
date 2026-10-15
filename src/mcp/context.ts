@@ -1,10 +1,9 @@
 import type { ToolCallback } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 import { createClient, type HanamiiClient } from '../api/client.js'
-import { AuthError } from '../api/errors.js'
+import { AuthError, redact } from '../api/errors.js'
 import type { ConfigOptions } from '../config/paths.js'
 import { resolveConfig } from '../config/resolve.js'
-import { format } from './format.js'
 
 export interface ServerOptions extends ConfigOptions {
   token?: string
@@ -29,11 +28,15 @@ export function createToolContext(options: ServerOptions) {
           token,
         )
       } catch (error) {
-        return format(
-          { error: { message: error instanceof Error ? error.message : '処理に失敗しました' } },
-          token,
-          true,
-        )
+        // outputSchema を持つツールでは、クライアントが structuredContent を検証するため
+        // エラー時は content のみ返し structuredContent を付けない
+        const message = error instanceof Error ? error.message : '処理に失敗しました'
+        return {
+          content: [
+            { type: 'text' as const, text: redact(JSON.stringify({ error: { message } }), token) },
+          ],
+          isError: true,
+        }
       }
     },
   }

@@ -5,15 +5,24 @@ import { resolveProject } from '../../core/project-resolve.js'
 import { readOnly, type ToolContext } from '../context.js'
 import { format } from '../format.js'
 import { progress } from '../progress.js'
+import { projectParam, waitOut } from '../schemas.js'
 export function register(server: McpServer, context: ToolContext) {
   server.registerTool(
     'wait_deployment',
     {
-      description: 'デプロイが READY または ERROR になるまで待機',
+      description:
+        'Wait until the current deployment of a project reaches READY or ERROR and return the final state. Use it after deploy_project with wait=false, or to confirm a deployment started elsewhere. Do not use it for a quick status check; prefer get_project, which returns at once. If no deployment is in progress it returns the current state immediately. timeoutSec is 1-600 (default 600); exceeding it is an error. Returns projectId, url, readyState and errorCode. On ERROR the result has isError=true, so call get_logs next. Example: {"project": "my-app", "timeoutSec": 300}',
       inputSchema: {
-        project: z.string().min(1),
-        timeoutSec: z.number().int().min(1).max(600).default(600),
+        project: projectParam,
+        timeoutSec: z
+          .number()
+          .int()
+          .min(1)
+          .max(600)
+          .default(600)
+          .describe('Maximum seconds to wait, 1-600 (default 600)'),
       },
+      outputSchema: waitOut,
       annotations: readOnly,
     },
     (args, extra) =>

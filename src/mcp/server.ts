@@ -1,3 +1,6 @@
+import { register as registerApiToken0 } from './tools/list-api-tokens.js'
+import { register as registerApiToken1 } from './tools/create-api-token.js'
+import { register as registerApiToken2 } from './tools/revoke-api-token.js'
 import { register as registerCreateGit } from './tools/create-git-project.js'
 import { register as registerRedeployGit } from './tools/redeploy-git-project.js'
 import { register as registerDb0 } from './tools/db-get-info.js'
@@ -58,6 +61,9 @@ export function createMcpServer(options: ServerOptions = {}): McpServer {
   const context = createToolContext(options)
   registerCreateGit(server, context)
   registerRedeployGit(server, context)
+  registerApiToken0(server, context)
+  registerApiToken1(server, context)
+  registerApiToken2(server, context)
   register0(server, context)
   register1(server, context)
   register2(server, context)

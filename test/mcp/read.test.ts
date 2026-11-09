@@ -62,6 +62,7 @@ it('読取8ツールの一覧・annotations・HTTP応答とstdout非出力', asy
           (t) =>
             t.annotations?.readOnlyHint &&
             t.name !== 'wait_deployment' &&
+            t.name !== 'list_api_tokens' &&
             !t.name.startsWith('storage_') &&
             !['db_get_info', 'db_get_export', 'db_list_tokens'].includes(t.name),
         )

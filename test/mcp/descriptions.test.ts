@@ -14,7 +14,7 @@ it('全ツールに十分な説明・引数説明・outputSchema があり、ins
   const s = await connect({ allowDelete: true })
   try {
     const { tools } = await s.client.listTools()
-    expect(tools).toHaveLength(35)
+    expect(tools).toHaveLength(38)
     for (const tool of tools) {
       const desc = tool.description ?? ''
       expect(words(desc).length, tool.name).toBeGreaterThanOrEqual(40)

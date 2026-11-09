@@ -53,7 +53,7 @@
 - [x] DB 管理: api/client + MCP ツール（情報・作成・削除(opt-in)・接続トークン一覧/発行/失効・エクスポート・インポート）
 - [x] DB 管理: CLI `db create|delete|tokens|export|import`
 - [x] GitHub ソース: MCP で新規作成（リポジトリ指定）と Git 再デプロイ
-- [ ] API トークン: MCP で一覧・発行・失効
+- [x] API トークン: MCP で一覧・発行・失効
 - [ ] README（日英）の CLI コマンド表・MCP ツール表・制限事項、CHANGELOG（Unreleased）、MCP instructions を Phase 7 の内容に更新
 - [ ] （柴田さんの確認待ち・着手しない）ストレージのファイル操作: アクセスキーでアップロード・削除（CLI / MCP）
 - [ ] （柴田さんの確認待ち・着手しない）本番での書き込み系の実呼び出し確認、v0.2.0 を npm に公開

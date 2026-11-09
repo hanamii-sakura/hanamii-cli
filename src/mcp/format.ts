@@ -17,3 +17,14 @@ export function format(
     ...(isError ? { isError: true } : {}),
   }
 }
+
+/** 発行した bearerToken のみを返す。他のフィールドは通常どおり伏字にする。 */
+export function formatCreatedToken(
+  metadata: object,
+  bearerToken: string,
+  authToken: string,
+): CallToolResult {
+  const safe = format(metadata, authToken).structuredContent!
+  const structuredContent = { ...safe, bearerToken }
+  return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent }
+}

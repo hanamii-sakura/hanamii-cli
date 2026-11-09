@@ -57,12 +57,13 @@ it('読取8ツールの一覧・annotations・HTTP応答とstdout非出力', asy
     const list = await session.client.listTools()
     expect(
       list.tools
-        // ストレージの読取ツールは storage.test.ts で確認する
+        // ストレージとDB管理の読取ツールは専用テストで確認する
         .filter(
           (t) =>
             t.annotations?.readOnlyHint &&
             t.name !== 'wait_deployment' &&
-            !t.name.startsWith('storage_'),
+            !t.name.startsWith('storage_') &&
+            !['db_get_info', 'db_get_export', 'db_list_tokens'].includes(t.name),
         )
         .map((t) => t.name)
         .sort(),

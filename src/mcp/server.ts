@@ -1,3 +1,13 @@
+import { register as registerDb0 } from './tools/db-get-info.js'
+import { register as registerDb1 } from './tools/db-create.js'
+import { register as registerDb2 } from './tools/db-delete.js'
+import { register as registerDb3 } from './tools/db-list-tokens.js'
+import { register as registerDb4 } from './tools/db-create-token.js'
+import { register as registerDb5 } from './tools/db-revoke-token.js'
+import { register as registerDb6 } from './tools/db-create-export.js'
+import { register as registerDb7 } from './tools/db-get-export.js'
+import { register as registerDb8 } from './tools/db-get-export-download.js'
+import { register as registerDb9 } from './tools/db-import.js'
 import { registerResources } from './resources.js'
 import { registerPrompts } from './prompts.js'
 import { register as register8 } from './tools/deploy-project.js'
@@ -65,7 +75,17 @@ export function createMcpServer(options: ServerOptions = {}): McpServer {
   registerStorageListFiles(server, context)
   registerStorageGetFileUrl(server, context)
   registerStorageGetUsage(server, context)
+  registerDb0(server, context)
+  registerDb1(server, context)
+  registerDb3(server, context)
+  registerDb4(server, context)
+  registerDb5(server, context)
+  registerDb6(server, context)
+  registerDb7(server, context)
+  registerDb8(server, context)
+  registerDb9(server, context)
   if (options.allowDelete) {
+    registerDb2(server, context)
     register13(server, context)
     registerStorageDeleteBucket(server, context)
   }

@@ -226,3 +226,47 @@ export interface StorageUsage {
     maxFileBytes: string
   } | null
 }
+
+export interface DatabaseToken {
+  id: string
+  name: string
+  permission: 'read_only' | 'read_write'
+  status: 'active' | 'revoked' | 'expired' | 'disabled'
+  createdAt: number | null
+  expiresAt: number | null
+  revokedAt: number | null
+}
+export interface DatabaseTokenInput {
+  name?: string
+  permission?: 'read_only' | 'read_write'
+  ttlSeconds?: number
+}
+export interface DatabaseExportJob {
+  id: string
+  status:
+    'queued' | 'running' | 'validating' | 'uploading' | 'ready' | 'cancelled' | 'failed' | 'expired'
+  failureCode: string | null
+  artifactSizeBytes: number | null
+  artifactSha256: string | null
+  artifactAvailableUntil: number | null
+  createdAt: number | null
+}
+export interface DatabaseDownload {
+  url: string
+  urlExpiresAt: number | null
+  availableUntil: number | null
+  sizeBytes: number
+  sha256: string
+  fileName: string
+}
+export interface DatabaseImportSession {
+  sessionId: string
+  partSizeBytes: number
+  parts: { partNumber: number; url: string; contentLength: number }[]
+  expiresAt: number | null
+}
+export interface DatabaseImportInput {
+  sessionId: string
+  parts: { partNumber: number; etag: string }[]
+  name?: string
+}

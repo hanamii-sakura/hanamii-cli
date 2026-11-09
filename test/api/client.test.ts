@@ -88,6 +88,87 @@ interface Case {
 }
 const cases: Case[] = [
   {
+    name: 'createDatabase',
+    method: 'POST',
+    path: '/projects/prj_1/database',
+    body: { name: 'app-db' },
+    response: { database: null },
+    run: () => client.createDatabase('prj_1', { name: 'app-db' }),
+  },
+  {
+    name: 'deleteDatabase',
+    method: 'DELETE',
+    path: '/projects/prj_1/database',
+    response: { database: null },
+    run: () => client.deleteDatabase('prj_1'),
+  },
+  {
+    name: 'listDatabaseTokens',
+    method: 'GET',
+    path: '/projects/prj_1/database/auth-tokens',
+    response: { authTokens: [] },
+    run: () => client.listDatabaseTokens('prj_1'),
+  },
+  {
+    name: 'createDatabaseToken',
+    method: 'POST',
+    path: '/projects/prj_1/database/auth-tokens',
+    body: { name: 'app', permission: 'read_only', ttlSeconds: 60 },
+    response: { authToken: null, token: 'db-secret', databaseUrl: 'libsql://db.test' },
+    run: () =>
+      client.createDatabaseToken('prj_1', { name: 'app', permission: 'read_only', ttlSeconds: 60 }),
+  },
+  {
+    name: 'revokeDatabaseToken',
+    method: 'DELETE',
+    path: '/projects/prj_1/database/auth-tokens/dbtok_1',
+    response: { authToken: { id: 'dbtok_1', status: 'revoked' } },
+    run: () => client.revokeDatabaseToken('prj_1', 'dbtok_1'),
+  },
+  {
+    name: 'createDatabaseExport',
+    method: 'POST',
+    path: '/projects/prj_1/database/exports',
+    body: { idempotencyKey: 'backup' },
+    response: { exportJob: null },
+    run: () => client.createDatabaseExport('prj_1', { idempotencyKey: 'backup' }),
+  },
+  {
+    name: 'getDatabaseExport',
+    method: 'GET',
+    path: '/projects/prj_1/database/exports/exp_1',
+    response: { exportJob: null },
+    run: () => client.getDatabaseExport('prj_1', 'exp_1'),
+  },
+  {
+    name: 'createDatabaseDownload',
+    method: 'POST',
+    path: '/projects/prj_1/database/exports/exp_1/download',
+    response: { download: null },
+    run: () => client.createDatabaseDownload('prj_1', 'exp_1'),
+  },
+  {
+    name: 'createDatabaseImportSession',
+    method: 'POST',
+    path: '/projects/prj_1/database/import-session',
+    body: { fileSizeBytes: 20 },
+    response: { session: null },
+    run: () => client.createDatabaseImportSession('prj_1', 20),
+  },
+  {
+    name: 'startDatabaseImport',
+    method: 'POST',
+    path: '/projects/prj_1/database/import-start',
+    body: { sessionId: 'session_1', parts: [{ partNumber: 1, etag: 'etag' }], name: 'app-db' },
+    response: { database: null },
+    run: () =>
+      client.startDatabaseImport('prj_1', {
+        sessionId: 'session_1',
+        parts: [{ partNumber: 1, etag: 'etag' }],
+        name: 'app-db',
+      }),
+  },
+  {
     name: 'listWorkspaces',
     method: 'GET',
     path: '/workspaces',

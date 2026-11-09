@@ -103,6 +103,60 @@ export function createClient(options: HttpOptions) {
       }),
     getDatabase: (id: string, call: CallOptions = {}) =>
       request<{ database: T.Database | null }>(`${projectPath(id)}/database`, call),
+    createDatabase: (id: string, body: { name?: string } = {}, call: CallOptions = {}) =>
+      request<{ database: T.Database | null }>(`${projectPath(id)}/database`, {
+        ...call,
+        method: 'POST',
+        body,
+      }),
+    deleteDatabase: (id: string, call: CallOptions = {}) =>
+      request<{ database: T.Database | null }>(`${projectPath(id)}/database`, {
+        ...call,
+        method: 'DELETE',
+      }),
+    listDatabaseTokens: (id: string, call: CallOptions = {}) =>
+      request<{ authTokens: T.DatabaseToken[] }>(`${projectPath(id)}/database/auth-tokens`, call),
+    createDatabaseToken: (id: string, body: T.DatabaseTokenInput = {}, call: CallOptions = {}) =>
+      request<{ authToken: T.DatabaseToken | null; token?: string; databaseUrl?: string }>(
+        `${projectPath(id)}/database/auth-tokens`,
+        { ...call, method: 'POST', body },
+      ),
+    revokeDatabaseToken: (id: string, tokenId: string, call: CallOptions = {}) =>
+      request<{ authToken: { id: string; status: 'revoked' } }>(
+        `${projectPath(id)}/database/auth-tokens/${segment(tokenId)}`,
+        { ...call, method: 'DELETE' },
+      ),
+    createDatabaseExport: (
+      id: string,
+      body: { idempotencyKey?: string } = {},
+      call: CallOptions = {},
+    ) =>
+      request<{ exportJob: T.DatabaseExportJob | null }>(`${projectPath(id)}/database/exports`, {
+        ...call,
+        method: 'POST',
+        body,
+      }),
+    getDatabaseExport: (id: string, exportJobId: string, call: CallOptions = {}) =>
+      request<{ exportJob: T.DatabaseExportJob | null }>(
+        `${projectPath(id)}/database/exports/${segment(exportJobId)}`,
+        call,
+      ),
+    createDatabaseDownload: (id: string, exportJobId: string, call: CallOptions = {}) =>
+      request<{ download: T.DatabaseDownload | null }>(
+        `${projectPath(id)}/database/exports/${segment(exportJobId)}/download`,
+        { ...call, method: 'POST' },
+      ),
+    createDatabaseImportSession: (id: string, fileSizeBytes: number, call: CallOptions = {}) =>
+      request<{ session: T.DatabaseImportSession | null }>(
+        `${projectPath(id)}/database/import-session`,
+        { ...call, method: 'POST', body: { fileSizeBytes } },
+      ),
+    startDatabaseImport: (id: string, body: T.DatabaseImportInput, call: CallOptions = {}) =>
+      request<{ database: T.Database | null }>(`${projectPath(id)}/database/import-start`, {
+        ...call,
+        method: 'POST',
+        body,
+      }),
     listDatabaseTables: (id: string, call: CallOptions = {}) =>
       request<{ tables: T.Table[] }>(`${projectPath(id)}/database/tables`, call),
     getDatabaseRows: (

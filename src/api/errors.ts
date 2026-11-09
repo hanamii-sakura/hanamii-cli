@@ -1,6 +1,9 @@
 export function redact(value: string, token?: string): string {
   const safe = token ? value.split(token).join('[REDACTED]') : value
-  return safe.replace(/hnm_[A-Za-z0-9_-]+/g, '[REDACTED]')
+  return safe.replace(
+    /hnm_[A-Za-z0-9_-]+|hst_key_[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)?/g,
+    '[REDACTED]',
+  )
 }
 
 export class HanamiiApiError extends Error {

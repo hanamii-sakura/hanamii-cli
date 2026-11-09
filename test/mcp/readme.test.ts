@@ -13,6 +13,7 @@ it('日英READMEとinstructionsに全MCPツールが記載され、削除のopt-
       'db_delete',
       'delete_project',
       'storage_delete_bucket',
+      'storage_delete_file',
     ])
     for (const file of ['README.md', 'README.en.md']) {
       const readme = await readFile(new URL(`../../${file}`, import.meta.url), 'utf8')

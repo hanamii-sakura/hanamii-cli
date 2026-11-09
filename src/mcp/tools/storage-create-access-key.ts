@@ -2,7 +2,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { z } from 'zod'
 import { requireWorkspace, resolveBucket } from '../../core/storage.js'
 import type { ToolContext } from '../context.js'
-import { format } from '../format.js'
+import { formatCreatedStorageKey } from '../format.js'
 import { accessKeyIssuedOut, bucketParam, workspaceParam } from '../schemas.js'
 export function register(server: McpServer, context: ToolContext) {
   server.registerTool(
@@ -26,8 +26,12 @@ export function register(server: McpServer, context: ToolContext) {
       context.run(async (client, token) => {
         const workspaceId = await requireWorkspace(client, args.workspaceId)
         const { bucket, apiOrigin } = await resolveBucket(client, workspaceId, args.bucket)
-        const issued = await client.createStorageAccessKey(workspaceId, bucket.id, args.permission)
-        return format({ bucketId: bucket.id, ...issued, apiOrigin }, token)
+        const { key, ...issued } = await client.createStorageAccessKey(
+          workspaceId,
+          bucket.id,
+          args.permission,
+        )
+        return formatCreatedStorageKey({ bucketId: bucket.id, ...issued, apiOrigin }, key, token)
       }),
   )
 }

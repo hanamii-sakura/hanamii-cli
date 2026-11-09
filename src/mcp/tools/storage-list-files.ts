@@ -8,7 +8,7 @@ export function register(server: McpServer, context: ToolContext) {
     'storage_list_files',
     {
       description:
-        'List the files stored in one object storage bucket, newest first (beta). Read-only. Use it to check what an app has uploaded or to find a file ID before calling storage_get_file_url. Do not use it to upload or delete files: those go through the file API with an access key, not through this server. Up to 50 files are returned per page; pass nextCursor as cursor for more. Any workspace member can call it. Returns bucketId, items[]{id, name, sizeBytes, contentType, createdAt, updatedAt} and nextCursor. Example: {"bucket": "app-uploads"}',
+        'List the files stored in one object storage bucket, newest first (beta). Read-only. Use it to check what an app has uploaded or to find a file ID before calling storage_get_file_url. Use storage_upload_file to upload a local file or storage_delete_file to delete one when deletion is enabled. Up to 50 files are returned per page; pass nextCursor as cursor for more. Any workspace member can call it. Returns bucketId, items[]{id, name, sizeBytes, contentType, createdAt, updatedAt} and nextCursor. Example: {"bucket": "app-uploads"}',
       inputSchema: { workspaceId: workspaceParam, bucket: bucketParam, cursor: cursorParam },
       outputSchema: storageFilesOut,
       annotations: readOnly,

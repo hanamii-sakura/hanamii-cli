@@ -28,3 +28,13 @@ export function formatCreatedToken(
   const structuredContent = { ...safe, bearerToken }
   return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent }
 }
+
+/** 明示的なキー発行の応答だけで平文を返す。一時キーには使わない。 */
+export function formatCreatedStorageKey(
+  metadata: object,
+  key: string,
+  authToken: string,
+): CallToolResult {
+  const structuredContent = { ...format(metadata, authToken).structuredContent!, key }
+  return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent }
+}

@@ -1,3 +1,5 @@
+import { resolve } from 'node:path'
+import { uploadStorageFile, deleteStorageFile } from '../../core/storage-files.js'
 import type { Command } from 'commander'
 import { requireWorkspace, resolveBucket } from '../../core/storage.js'
 import { OperationError } from '../../core/errors.js'
@@ -8,7 +10,7 @@ export function registerStorage(program: Command, context: CliContext): void {
   const storage = program.command('storage').description('オブジェクトストレージを管理する（beta）')
   const buckets = storage.command('buckets').description('バケットを管理する')
   const keys = storage.command('keys').description('アクセスキーを管理する')
-  const files = storage.command('files').description('ファイル一覧・閲覧 URL を取得する')
+  const files = storage.command('files').description('ファイルのアップロード・削除・一覧・閲覧 URL')
   async function workspace(command: Command) {
     const options = command.optsWithGlobals<Options>()
     const { client } = await context.authenticated(options)
@@ -123,6 +125,47 @@ export function registerStorage(program: Command, context: CliContext): void {
         throw new OperationError('ファイル ID を指定してください', 2)
       const { client, workspaceId, bucket, options } = await selected(command, identifier)
       show(await client.createStorageFileViewUrl(workspaceId, bucket.id, fileId), options)
+    })
+  files
+    .command('upload <bucket> <path>')
+    .option('--name <name>', '保存するファイル名')
+    .option('--content-type <type>', 'MIMEタイプ（省略時は拡張子から判定）')
+    .action(async (bucket: string, path: string, _opts, command: Command) => {
+      const options = command.optsWithGlobals<
+        GlobalOptions & { name?: string; contentType?: string }
+      >()
+      const { client } = await context.authenticated(options)
+      show(
+        await uploadStorageFile(client, {
+          bucket,
+          path: resolve(context.deps.cwd ?? process.cwd(), path),
+          ...(options.workspace ? { workspaceId: options.workspace } : {}),
+          ...(options.name === undefined ? {} : { name: options.name }),
+          ...(options.contentType === undefined ? {} : { contentType: options.contentType }),
+          ...(context.deps.fetch ? { fetch: context.deps.fetch } : {}),
+        }),
+        options,
+      )
+    })
+  files
+    .command('delete <bucket> <fileId>')
+    .option('--yes', 'ファイル名の確認を省略する（非対話では必須）')
+    .action(async (bucket: string, fileId: string, _opts, command: Command) => {
+      const options = command.optsWithGlobals<Options>()
+      if (!options.yes && !context.isInteractive)
+        throw new OperationError('非対話では --yes を指定してください', 2)
+      const { client } = await context.authenticated(options)
+      show(
+        await deleteStorageFile(client, {
+          bucket,
+          fileId,
+          ...(options.workspace ? { workspaceId: options.workspace } : {}),
+          ...(context.deps.fetch ? { fetch: context.deps.fetch } : {}),
+          confirm: async (name) =>
+            Boolean(options.yes) || (await context.promptProjectName(name)) === name,
+        }),
+        options,
+      )
     })
   storage.command('usage').action(async (_opts, command: Command) => {
     const { client, workspaceId, options } = await workspace(command)

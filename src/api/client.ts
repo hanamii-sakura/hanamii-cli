@@ -7,6 +7,10 @@ const segment = (value: string) => {
   return encodeURIComponent(value)
 }
 const projectPath = (id: string) => `/projects/${segment(id)}`
+const storagePath = (workspaceId: string) => `/workspaces/${segment(workspaceId)}/storage`
+const bucketPath = (workspaceId: string, bucketId: string) =>
+  `${storagePath(workspaceId)}/buckets/${segment(bucketId)}`
+const cursorQuery = (cursor?: string) => (cursor ? { cursor } : {})
 
 /** 応答の envelope と pagination を維持する、公開 v1 API の薄いラッパー。 */
 export function createClient(options: HttpOptions) {
@@ -111,6 +115,79 @@ export function createClient(options: HttpOptions) {
         ...call,
         query,
       }),
+    listStorageBuckets: (workspaceId: string, cursor?: string, call: CallOptions = {}) =>
+      request<T.StorageBucketPage>(`${storagePath(workspaceId)}/buckets`, {
+        ...call,
+        query: cursorQuery(cursor),
+      }),
+    createStorageBucket: (
+      workspaceId: string,
+      body: T.CreateStorageBucketInput,
+      call: CallOptions = {},
+    ) =>
+      request<T.StorageBucket>(`${storagePath(workspaceId)}/buckets`, {
+        ...call,
+        method: 'POST',
+        body,
+      }),
+    deleteStorageBucket: (workspaceId: string, bucketId: string, call: CallOptions = {}) =>
+      request<T.StorageBucketDeletion>(bucketPath(workspaceId, bucketId), {
+        ...call,
+        method: 'DELETE',
+      }),
+    listStorageAccessKeys: (
+      workspaceId: string,
+      bucketId: string,
+      cursor?: string,
+      call: CallOptions = {},
+    ) =>
+      request<T.StoragePage<T.StorageAccessKey>>(
+        `${bucketPath(workspaceId, bucketId)}/access-keys`,
+        { ...call, query: cursorQuery(cursor) },
+      ),
+    createStorageAccessKey: (
+      workspaceId: string,
+      bucketId: string,
+      permission: T.StorageKeyPermission,
+      call: CallOptions = {},
+    ) =>
+      request<T.IssuedStorageAccessKey>(`${bucketPath(workspaceId, bucketId)}/access-keys`, {
+        ...call,
+        method: 'POST',
+        body: { permission },
+      }),
+    revokeStorageAccessKey: (
+      workspaceId: string,
+      bucketId: string,
+      keyId: string,
+      call: CallOptions = {},
+    ) =>
+      request<Record<string, never>>(
+        `${bucketPath(workspaceId, bucketId)}/access-keys/${segment(keyId)}`,
+        { ...call, method: 'DELETE' },
+      ),
+    listStorageFiles: (
+      workspaceId: string,
+      bucketId: string,
+      cursor?: string,
+      call: CallOptions = {},
+    ) =>
+      request<T.StoragePage<T.StorageFile>>(`${bucketPath(workspaceId, bucketId)}/files`, {
+        ...call,
+        query: cursorQuery(cursor),
+      }),
+    createStorageFileViewUrl: (
+      workspaceId: string,
+      bucketId: string,
+      fileId: string,
+      call: CallOptions = {},
+    ) =>
+      request<T.StorageFileViewUrl>(
+        `${bucketPath(workspaceId, bucketId)}/files/${segment(fileId)}/view-url`,
+        { ...call, method: 'POST' },
+      ),
+    getStorageUsage: (workspaceId: string, call: CallOptions = {}) =>
+      request<T.StorageUsage>(`${storagePath(workspaceId)}/usage`, call),
   }
 }
 export type HanamiiClient = ReturnType<typeof createClient>

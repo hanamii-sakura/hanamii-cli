@@ -45,3 +45,33 @@
 
 - [x] forecall lint（規則 v2）で MCP ツールを採点し、説明文・引数説明・instructions を英語化、全ツールに outputSchema を追加（25.4 → 93.4）。エラー応答は structuredContent なし。`test/mcp/descriptions.test.ts` で回帰防止、本番で MCP 統合テストを再実行
 - [x] v0.1.1 を npm に公開（2026-10-15、ローカルから publish。`npx -y hanamii@latest --version` が 0.1.1、MCP 起動で 13 ツール全てに outputSchema を確認）
+
+## Phase 7 公開 API にある機能を MCP / CLI に載せる（サーバー変更なし）
+
+- [x] ストレージ: api/client + MCP ツール 9 本（storage_list_buckets / storage_create_bucket / storage_delete_bucket(opt-in) / storage_list_access_keys / storage_create_access_key / storage_revoke_access_key / storage_list_files / storage_get_file_url / storage_get_usage）。本番では読取 2 本（利用量・バケット一覧）だけ実呼び出しで確認。作成・キー発行・無効化・閲覧 URL・削除とファイル/キー一覧はモックのみ（本番にバケットが無いため）
+- [ ] ストレージ: CLI `storage buckets|keys|files|usage`
+- [ ] DB 管理: api/client + MCP ツール（情報・作成・削除(opt-in)・接続トークン一覧/発行/失効・エクスポート・インポート）
+- [ ] DB 管理: CLI `db create|delete|tokens|export|import`
+- [ ] GitHub ソース: MCP で新規作成（リポジトリ指定）と Git 再デプロイ
+- [ ] API トークン: MCP で一覧・発行・失効
+- [ ] ストレージのファイル操作: アクセスキーでアップロード・削除（CLI / MCP、設計を先に確認）
+- [ ] README（日英）・CHANGELOG・MCP instructions を更新し v0.2.0 を公開
+
+## Phase 8 公開 API の追加が必要（hanamii-frontend 側 → その後 CLI / MCP）
+
+着手前に範囲を柴田さんに確認する。frontend は worktree + develop への PR。
+
+- [ ] スケジューラー（一覧・作成・変更・削除・実行履歴）
+- [ ] 独自ドメイン（設定・削除・DNS 検証・SSL 状態）
+- [ ] セキュリティチェック（実行・結果一覧）
+- [ ] バージョン切り替え、停止プロジェクトの復帰
+- [ ] アクセス制限
+- [ ] ビルドログ、環境変数の削除
+- [ ] GitHub 連携のリポジトリ・ブランチ一覧
+- [ ] メンバー招待・管理（要確認）
+- [ ] 課金: プラン・支払い（要確認。読み取りだけにするか）
+- [ ] DB の行の書き込み・SQL 実行（要設計）
+
+## Phase 9 リモート MCP / OAuth
+
+- [ ] 設計（段階 B の後）

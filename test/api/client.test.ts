@@ -67,6 +67,12 @@ const createInput = {
   envs,
   healthCheck: { enabled: false as const },
 }
+const bucket = {
+  id: 'bkt_1',
+  name: 'uploads',
+  visibility: 'private',
+  createdAt: '2026-11-01T00:00:00.000Z',
+}
 interface Case {
   name: keyof HanamiiClient
   method: string
@@ -75,6 +81,8 @@ interface Case {
   body?: unknown
   response: unknown
   status?: number
+  /** 本文なしの応答（204）。クライアントは {} を返す */
+  empty?: boolean
   run: () => Promise<unknown>
   long?: boolean
 }
@@ -308,6 +316,107 @@ const cases: Case[] = [
     response: rows,
     run: () => client.getDatabaseRows('prj_1', rows.table, { limit: 50, offset: 0 }),
   },
+  {
+    name: 'listStorageBuckets',
+    method: 'GET',
+    path: '/workspaces/ws_1/storage/buckets',
+    query: { cursor: 'next 1' },
+    response: { items: [bucket], nextCursor: null, apiOrigin: 'https://storage.example.test' },
+    run: () => client.listStorageBuckets('ws_1', 'next 1'),
+  },
+  {
+    name: 'createStorageBucket',
+    method: 'POST',
+    path: '/workspaces/ws_1/storage/buckets',
+    body: { name: 'uploads', visibility: 'private' },
+    response: bucket,
+    status: 201,
+    run: () => client.createStorageBucket('ws_1', { name: 'uploads', visibility: 'private' }),
+  },
+  {
+    name: 'deleteStorageBucket',
+    method: 'DELETE',
+    path: '/workspaces/ws_1/storage/buckets/bkt_1',
+    response: { status: 'processing' },
+    status: 202,
+    run: () => client.deleteStorageBucket('ws_1', 'bkt_1'),
+  },
+  {
+    name: 'listStorageAccessKeys',
+    method: 'GET',
+    path: '/workspaces/ws_1/storage/buckets/bkt_1/access-keys',
+    response: {
+      items: [
+        {
+          keyId: 'key_1',
+          permission: 'read_only',
+          createdBy: 'usr_1',
+          creatorEmail: null,
+          createdAt: '2026-11-01T00:00:00.000Z',
+          lastUsedAt: null,
+        },
+      ],
+      nextCursor: 'c2',
+    },
+    run: () => client.listStorageAccessKeys('ws_1', 'bkt_1'),
+  },
+  {
+    name: 'createStorageAccessKey',
+    method: 'POST',
+    path: '/workspaces/ws_1/storage/buckets/bkt_1/access-keys',
+    body: { permission: 'read_write' },
+    response: {
+      keyId: 'key_1',
+      permission: 'read_write',
+      createdAt: '2026-11-01T00:00:00.000Z',
+      key: 'hst_key_1.secret',
+    },
+    status: 201,
+    run: () => client.createStorageAccessKey('ws_1', 'bkt_1', 'read_write'),
+  },
+  {
+    name: 'revokeStorageAccessKey',
+    method: 'DELETE',
+    path: '/workspaces/ws_1/storage/buckets/bkt_1/access-keys/key_1',
+    response: {},
+    status: 204,
+    empty: true,
+    run: () => client.revokeStorageAccessKey('ws_1', 'bkt_1', 'key_1'),
+  },
+  {
+    name: 'listStorageFiles',
+    method: 'GET',
+    path: '/workspaces/ws_1/storage/buckets/bkt_1/files',
+    query: { cursor: 'c2' },
+    response: {
+      items: [
+        {
+          id: 'file_1',
+          name: 'a.png',
+          sizeBytes: '12',
+          contentType: 'image/png',
+          createdAt: '2026-11-01T00:00:00.000Z',
+          updatedAt: '2026-11-01T00:00:00.000Z',
+        },
+      ],
+      nextCursor: null,
+    },
+    run: () => client.listStorageFiles('ws_1', 'bkt_1', 'c2'),
+  },
+  {
+    name: 'createStorageFileViewUrl',
+    method: 'POST',
+    path: '/workspaces/ws_1/storage/buckets/bkt_1/files/file_1/view-url',
+    response: { url: 'https://files.example.test/a.png?sig=1', expiresAt: null },
+    run: () => client.createStorageFileViewUrl('ws_1', 'bkt_1', 'file_1'),
+  },
+  {
+    name: 'getStorageUsage',
+    method: 'GET',
+    path: '/workspaces/ws_1/storage/usage',
+    response: { usedBytes: '12', fileCount: '1', deliveredBytes: '0', limits: null },
+    run: () => client.getStorageUsage('ws_1'),
+  },
 ]
 describe('API エンドポイントの契約', () => {
   it.each(cases)('$name', async (item) => {
@@ -326,6 +435,7 @@ describe('API エンドポイントの契約', () => {
           expect(request.headers.get('content-type')).toBe('application/json')
           expect(await request.json()).toEqual(item.body)
         }
+        if (item.empty) return new HttpResponse(null, { status: item.status ?? 204 })
         return typeof item.response === 'string'
           ? HttpResponse.text(item.response)
           : new HttpResponse(`${item.long ? ' \n  ' : ''}${JSON.stringify(item.response)}`, {

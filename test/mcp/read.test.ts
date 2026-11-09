@@ -57,7 +57,13 @@ it('読取8ツールの一覧・annotations・HTTP応答とstdout非出力', asy
     const list = await session.client.listTools()
     expect(
       list.tools
-        .filter((t) => t.annotations?.readOnlyHint && t.name !== 'wait_deployment')
+        // ストレージの読取ツールは storage.test.ts で確認する
+        .filter(
+          (t) =>
+            t.annotations?.readOnlyHint &&
+            t.name !== 'wait_deployment' &&
+            !t.name.startsWith('storage_'),
+        )
         .map((t) => t.name)
         .sort(),
     ).toEqual(responses.map((r) => r[0]).sort())

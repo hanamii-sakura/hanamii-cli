@@ -19,6 +19,22 @@ export const envSchema = z.object({
     .default('secret')
     .describe('"secret" (default) masks the value in the dashboard; "plain" shows it as is'),
 })
+export const workspaceParam = z
+  .string()
+  .optional()
+  .describe(
+    'Workspace ID (UUID) from list_workspaces. Omit when the token can reach only one workspace',
+  )
+export const bucketParam = z
+  .string()
+  .min(1)
+  .describe(
+    'Target bucket: the bucket ID or the exact bucket name as shown by storage_list_buckets. Example: "uploads"',
+  )
+export const cursorParam = z
+  .string()
+  .optional()
+  .describe('Opaque nextCursor value returned by the previous page. Omit for the first page')
 
 // --- 出力スキーマ ---
 // 形を伝えるのが目的。API の項目追加や省略で呼び出しが失敗しないよう、入れ子は loose、項目は optional にする
@@ -137,4 +153,95 @@ export const deleteOut = {
     deletion: z.enum(['completed', 'accepted']).optional(),
     operationId: z.string().optional(),
   }),
+}
+const bucketOut = z.looseObject({
+  id: z.string().describe('Bucket ID'),
+  name: z.string().optional(),
+  visibility: z.enum(['public', 'private']).optional(),
+  createdAt: z.string().optional().describe('ISO 8601 timestamp'),
+})
+const nextCursorOut = z
+  .string()
+  .nullable()
+  .optional()
+  .describe('Pass as cursor to read the next page; null on the last page')
+export const bucketsOut = {
+  workspaceId: z.string(),
+  items: z.array(bucketOut),
+  nextCursor: nextCursorOut,
+  apiOrigin: z
+    .string()
+    .optional()
+    .describe('Base URL of the file API that apps call with an access key'),
+}
+export const bucketCreatedOut = { workspaceId: z.string(), ...bucketOut.shape }
+export const bucketDeletedOut = {
+  bucketId: z.string(),
+  name: z.string().optional(),
+  status: z
+    .enum(['completed', 'processing'])
+    .describe('"processing" while public and shared URLs are still being shut down'),
+}
+export const accessKeysOut = {
+  bucketId: z.string(),
+  items: z.array(
+    z.looseObject({
+      keyId: z.string(),
+      permission: z.enum(['read_only', 'read_write']).optional(),
+      creatorEmail: z.string().nullable().optional(),
+      createdAt: z.string().optional(),
+      lastUsedAt: z.string().nullable().optional(),
+    }),
+  ),
+  nextCursor: nextCursorOut,
+}
+export const accessKeyIssuedOut = {
+  bucketId: z.string(),
+  keyId: z.string(),
+  permission: z.enum(['read_only', 'read_write']).optional(),
+  createdAt: z.string().optional(),
+  key: z.string().describe('Full secret key. Returned only by this call and never shown again'),
+  apiOrigin: z
+    .string()
+    .optional()
+    .describe('Base URL of the file API to use together with the key'),
+}
+export const accessKeyRevokedOut = { bucketId: z.string(), keyId: z.string(), revoked: z.boolean() }
+export const storageFilesOut = {
+  bucketId: z.string(),
+  items: z.array(
+    z.looseObject({
+      id: z.string().describe('File ID'),
+      name: z.string().optional(),
+      sizeBytes: z.string().optional().describe('Size in bytes as a decimal string'),
+      contentType: z.string().optional(),
+      createdAt: z.string().optional(),
+      updatedAt: z.string().optional(),
+    }),
+  ),
+  nextCursor: nextCursorOut,
+}
+export const storageFileUrlOut = {
+  url: z.string(),
+  expiresAt: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('Expiry of a private bucket URL (one hour); null for a public bucket'),
+}
+export const storageUsageOut = {
+  workspaceId: z.string(),
+  usedBytes: z.string().optional().describe('Stored bytes as a decimal string'),
+  fileCount: z.string().optional(),
+  deliveredBytes: z.string().optional().describe('Approximate bytes delivered this month'),
+  limits: z
+    .looseObject({
+      maxBuckets: z.string().optional(),
+      maxTotalBytes: z.string().optional(),
+      maxFiles: z.string().optional(),
+      maxFileBytes: z.string().optional(),
+    })
+    .nullable()
+    .optional()
+    .describe('Plan limits; all zero while the workspace is restricted, null when unknown'),
 }

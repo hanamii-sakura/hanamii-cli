@@ -39,9 +39,9 @@ describe.skipIf(!token)('MCP サーバー（stdio、読取）', () => {
     await client.close()
   })
 
-  it('ツール一覧に delete_project を含む 14 ツールがある', async () => {
+  it('ツール一覧に delete_project を含む 23 ツールがある', async () => {
     const { tools } = await client.listTools()
-    expect(tools.length).toBe(14)
+    expect(tools.length).toBe(23)
     expect(tools.map((t) => t.name)).toContain('delete_project')
   })
 

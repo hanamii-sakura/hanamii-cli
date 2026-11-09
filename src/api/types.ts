@@ -165,3 +165,64 @@ export interface RowsPage {
     totalCountTruncated: boolean
   }
 }
+/** ストレージ API の応答は envelope なし。容量・件数は丸めを避けるため 10 進の文字列。 */
+export interface StoragePage<T> {
+  items: T[]
+  nextCursor: string | null
+}
+export interface StorageBucket {
+  id: string
+  name: string
+  visibility: 'public' | 'private'
+  createdAt: string
+}
+export interface StorageBucketPage extends StoragePage<StorageBucket> {
+  apiOrigin: string
+}
+export interface CreateStorageBucketInput {
+  name: string
+  visibility: StorageBucket['visibility']
+}
+/** 204 は本文なし（{}）、処理が続くときは 202 で status が付く。 */
+export interface StorageBucketDeletion {
+  status?: 'processing'
+}
+export type StorageKeyPermission = 'read_only' | 'read_write'
+export interface StorageAccessKey {
+  keyId: string
+  permission: StorageKeyPermission
+  createdBy: string
+  creatorEmail: string | null
+  createdAt: string
+  lastUsedAt: string | null
+}
+export interface IssuedStorageAccessKey {
+  keyId: string
+  permission: StorageKeyPermission
+  createdAt: string
+  /** 発行時の応答にだけ含まれる完全な鍵。 */
+  key: string
+}
+export interface StorageFile {
+  id: string
+  name: string
+  sizeBytes: string
+  contentType: string
+  createdAt: string
+  updatedAt: string
+}
+export interface StorageFileViewUrl {
+  url: string
+  expiresAt: string | null
+}
+export interface StorageUsage {
+  usedBytes: string
+  fileCount: string
+  deliveredBytes: string
+  limits: {
+    maxBuckets: string
+    maxTotalBytes: string
+    maxFiles: string
+    maxFileBytes: string
+  } | null
+}

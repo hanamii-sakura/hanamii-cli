@@ -51,6 +51,44 @@ restart_project, get_health_check, set_health_check, db_list_tables, db_query_ro
 delete_project（`--allow-delete` 時のみ）。
 リソース `hanamii://docs/public-api`、プロンプト `deploy_app`。stdout はプロトコル専用、ログは stderr。
 
+## 追加要件（2026-11-09）: ダッシュボードの全機能を CLI / MCP から操作できるようにする
+
+柴田指示「全部できるようにしたい」。対象は 2026-11-09 の調査で挙げた不足分すべて。段階を分けて進める。
+
+### 段階 A: 公開 API にある機能を載せる（hanamii-frontend は変更しない）
+
+- オブジェクトストレージ（`/workspaces/:workspaceId/storage/**`）: バケット一覧・作成・削除、アクセスキー一覧・発行・無効化、
+  ファイル一覧、閲覧 URL 発行、利用量
+- DB 管理（`/projects/:id/database/**`）: 作成・削除、情報、接続トークン一覧・発行・失効、エクスポート、インポート
+- GitHub ソース: MCP からリポジトリ指定の新規作成、既存 Git ソースの再デプロイ
+- API トークン: MCP から一覧・発行・失効
+- ストレージのファイル操作（アップロード・削除）: アクセスキーで接続先のファイル API を直接呼ぶ（公開 API とは別系統。要設計）
+
+### 段階 B: 公開 API の追加が先に必要（hanamii-frontend 側の作業。develop への PR → main へ cherry-pick）
+
+スケジューラー、独自ドメイン、セキュリティチェック、バージョン切り替え、停止プロジェクトの復帰、アクセス制限、
+ビルドログ、環境変数の削除、GitHub 連携のリポジトリ・ブランチ一覧、メンバー招待・管理。
+課金（プラン変更・支払い方法）と DB の行の書き込み・SQL 実行は範囲と設計を柴田さんに確認してから着手する。
+
+### 段階 C: リモート MCP / OAuth
+
+ローカル stdio 以外（claude.ai のコネクタなど）から使えるようにする。段階 B の後に設計する。
+
+### ストレージ API の前提（hanamii-frontend main で確認済み）
+
+- 応答は envelope なし。一覧は `{items, nextCursor}`（バケット一覧は `apiOrigin` も返す）。ページ送りは `cursor` クエリ
+- `DELETE` は本文なしの 204。バケット削除は処理が続くとき 202 `{status: "processing"}`
+- バケット名は英小文字・数字・ハイフンで 3〜63 文字。`visibility` は `public` / `private`（作成後は変更不可、無料プランは `private` のみ）
+- アクセスキーの `permission` は `read_only` / `read_write`。完全な鍵 `key` は発行時の応答にだけ含まれる
+- 一覧・閲覧 URL・利用量はメンバー全員、バケット作成・削除とキー操作は owner / admin
+- 容量・件数は 10 進の文字列（`sizeBytes`、`usedBytes` など）
+- 非公開バケットの閲覧 URL は 1 時間有効（`expiresAt`）、公開バケットは固定 URL（`expiresAt: null`）
+
+### MCP での安全策
+
+- データが消える操作（プロジェクト削除、バケット削除、DB 削除）は `--allow-delete` で起動したときだけ登録し、名前の再入力で確認する
+- 鍵・トークンの平文を返すツールは、発行時の 1 回だけ返す。ログには出さない
+
 ## 参照
 
 - 計画の全文: `~/.claude/plans/mcp-cli-toasty-dijkstra.md`

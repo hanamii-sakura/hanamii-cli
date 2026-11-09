@@ -1,3 +1,5 @@
+import { register as registerCreateGit } from './tools/create-git-project.js'
+import { register as registerRedeployGit } from './tools/redeploy-git-project.js'
 import { register as registerDb0 } from './tools/db-get-info.js'
 import { register as registerDb1 } from './tools/db-create.js'
 import { register as registerDb2 } from './tools/db-delete.js'
@@ -54,6 +56,8 @@ export function createMcpServer(options: ServerOptions = {}): McpServer {
     { instructions: INSTRUCTIONS },
   )
   const context = createToolContext(options)
+  registerCreateGit(server, context)
+  registerRedeployGit(server, context)
   register0(server, context)
   register1(server, context)
   register2(server, context)

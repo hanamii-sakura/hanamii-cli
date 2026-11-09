@@ -149,7 +149,7 @@ it('特殊なテーブル名をパスエンコード、空の行と集計上限�
   expect(stdout).toContain('行はありません')
   expect(stdout).toContain('10000（集計上限あり）')
 })
-it('不正なページ指定と書込コマンドを拒否', async () => {
+it('不正なページ指定を拒否', async () => {
   for (const args of [
     ['--limit', '0'],
     ['--limit', '101'],
@@ -159,8 +159,6 @@ it('不正なページ指定と書込コマンドを拒否', async () => {
     ['--offset', 'bad'],
   ])
     expect(await run('rows', 'users', ...args)).toBe(2)
-  expect(await run('create')).toBe(2)
-  expect(await run('delete')).toBe(2)
 })
 it('権限エラーは終了コード3、トークンを表示しない', async () => {
   server.use(

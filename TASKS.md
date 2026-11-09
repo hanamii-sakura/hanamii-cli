@@ -54,8 +54,9 @@
 - [ ] DB 管理: CLI `db create|delete|tokens|export|import`
 - [ ] GitHub ソース: MCP で新規作成（リポジトリ指定）と Git 再デプロイ
 - [ ] API トークン: MCP で一覧・発行・失効
-- [ ] ストレージのファイル操作: アクセスキーでアップロード・削除（CLI / MCP、設計を先に確認）
-- [ ] README（日英）・CHANGELOG・MCP instructions を更新し v0.2.0 を公開
+- [ ] README（日英）の CLI コマンド表・MCP ツール表・制限事項、CHANGELOG（Unreleased）、MCP instructions を Phase 7 の内容に更新
+- [ ] （柴田さんの確認待ち・着手しない）ストレージのファイル操作: アクセスキーでアップロード・削除（CLI / MCP）
+- [ ] （柴田さんの確認待ち・着手しない）本番での書き込み系の実呼び出し確認、v0.2.0 を npm に公開
 
 ## Phase 8 公開 API の追加が必要（hanamii-frontend 側 → その後 CLI / MCP）
 

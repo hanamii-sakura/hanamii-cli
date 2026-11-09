@@ -67,7 +67,7 @@ async function promptToken(): Promise<string | undefined> {
 async function promptProjectName(name: string): Promise<string | undefined> {
   const { text, isCancel } = await import('@clack/prompts')
   const result = await text({
-    message: `削除するプロジェクト名「${redact(name)}」を再入力してください`,
+    message: `削除対象の名前「${redact(name)}」を再入力してください`,
     output: process.stderr,
   })
   return isCancel(result) ? undefined : result

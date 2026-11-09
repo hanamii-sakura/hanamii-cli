@@ -22,6 +22,7 @@ import { registerLogs } from './cli/commands/logs.js'
 import { registerRestart } from './cli/commands/restart.js'
 import { registerHealthCheck } from './cli/commands/health-check.js'
 import { registerTokens } from './cli/commands/tokens.js'
+import { registerStorage } from './cli/commands/storage.js'
 import { registerDb } from './cli/commands/db.js'
 import { registerMcp } from './cli/commands/mcp.js'
 import { exitCode } from './cli/output.js'
@@ -55,6 +56,7 @@ function createProgram(context: CliContext, quietErrors = false): Command {
   registerHealthCheck(program, context)
   registerTokens(program, context)
   registerDb(program, context)
+  registerStorage(program, context)
   registerMcp(program, context)
   return program
 }

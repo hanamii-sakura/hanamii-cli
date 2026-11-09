@@ -25,6 +25,21 @@ export function createOutput(stdout: (text: string) => void, stderr: (text: stri
     return redact(text)
   }
   return {
+    createdSecret: (
+      metadata: Record<string, unknown>,
+      field: string,
+      secret: string,
+      json: boolean,
+    ) => {
+      secrets.add(secret)
+      const data = {
+        ...(JSON.parse(clean(JSON.stringify(metadata))) as Record<string, unknown>),
+        [field]: secret,
+      }
+      stdout(
+        `${json ? JSON.stringify(data) : `鍵を発行しました。この値は一度だけ表示されます。\n${JSON.stringify(data, null, 2)}`}\n`,
+      )
+    },
     // 発行直後の bearerToken だけを一度表示する。他のフィールドは通常どおりマスクする。
     createdToken: (metadata: unknown, bearerToken: string, json: boolean) => {
       secrets.add(bearerToken)

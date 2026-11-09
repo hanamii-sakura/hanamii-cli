@@ -49,7 +49,7 @@
 ## Phase 7 公開 API にある機能を MCP / CLI に載せる（サーバー変更なし）
 
 - [x] ストレージ: api/client + MCP ツール 9 本（storage_list_buckets / storage_create_bucket / storage_delete_bucket(opt-in) / storage_list_access_keys / storage_create_access_key / storage_revoke_access_key / storage_list_files / storage_get_file_url / storage_get_usage）。本番では読取 2 本（利用量・バケット一覧）だけ実呼び出しで確認。作成・キー発行・無効化・閲覧 URL・削除とファイル/キー一覧はモックのみ（本番にバケットが無いため）
-- [ ] ストレージ: CLI `storage buckets|keys|files|usage`
+- [x] ストレージ: CLI `storage buckets|keys|files|usage`
 - [ ] DB 管理: api/client + MCP ツール（情報・作成・削除(opt-in)・接続トークン一覧/発行/失効・エクスポート・インポート）
 - [ ] DB 管理: CLI `db create|delete|tokens|export|import`
 - [ ] GitHub ソース: MCP で新規作成（リポジトリ指定）と Git 再デプロイ

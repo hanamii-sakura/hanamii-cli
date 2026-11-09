@@ -26,6 +26,7 @@ it('--help は利用の流れに沿った順でコマンドを表示する', asy
     'health-check',
     'tokens',
     'db',
+    'storage',
     'mcp',
     'help',
   ])

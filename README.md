@@ -77,15 +77,22 @@ hanamii deploy --name my-app
 | `hanamii db info`                              | データベース情報                                                                                                                                                                                                                                                        |
 | `hanamii db tables`                            | テーブルと列定義                                                                                                                                                                                                                                                        |
 | `hanamii db rows <table>`                      | `--limit <count>`（既定50、1〜100）、`--offset <count>`（既定0、0〜1000000）                                                                                                                                                                                            |
-| `hanamii storage buckets list`                 | List buckets                                                                                                                                                                                                                                                            |
-| `hanamii storage buckets create <name>`        | Create a bucket (--visibility public/private)                                                                                                                                                                                                                           |
-| `hanamii storage buckets delete <bucket>`      | Delete a bucket (--yes to skip name confirmation)                                                                                                                                                                                                                       |
-| `hanamii storage keys list <bucket>`           | List access keys                                                                                                                                                                                                                                                        |
-| `hanamii storage keys create <bucket>`         | Issue a key (--permission read_only/read_write)                                                                                                                                                                                                                         |
-| `hanamii storage keys revoke <bucket> <keyId>` | Revoke a key                                                                                                                                                                                                                                                            |
-| `hanamii storage files list <bucket>`          | List files                                                                                                                                                                                                                                                              |
-| `hanamii storage files url <bucket> <fileId>`  | Get a view URL                                                                                                                                                                                                                                                          |
-| `hanamii storage usage`                        | Show storage usage                                                                                                                                                                                                                                                      |
+| `hanamii db create`                            | `--name <name>`（任意）。空のDBを作成。完了は `db info` で確認                                                                                                                                                                                                          |
+| `hanamii db delete`                            | DB名を再入力して削除。`--yes` で確認省略（非対話では必須）                                                                                                                                                                                                              |
+| `hanamii db tokens list`                       | DB接続トークンのメタデータ一覧                                                                                                                                                                                                                                          |
+| `hanamii db tokens create`                     | `--name <name>`、`--permission <permission>`（既定 read_write、read_only も可）、`--ttl <seconds>`（既定2592000秒）。平文は発行時のみ                                                                                                                                   |
+| `hanamii db tokens revoke <tokenId>`           | DB接続トークンを失効                                                                                                                                                                                                                                                    |
+| `hanamii db export`                            | `--idempotency-key <key>`、`--job <id>`（既存ジョブ再開）、`--no-wait`、`--timeout <seconds>`（既定・最大900）。完了後に署名URLを表示。`--output <file>` で検証して保存（上書き不可）                                                                                   |
+| `hanamii db import <file>`                     | SQLiteファイルからDB作成（100MiB以下）。任意: `--name <name>`。完了は `db info` で確認                                                                                                                                                                                  |
+| `hanamii storage buckets list`                 | バケット一覧。`--cursor <cursor>` で続き                                                                                                                                                                                                                                |
+| `hanamii storage buckets create <name>`        | 必須: `--visibility <visibility>`（public / private、作成後変更不可）                                                                                                                                                                                                   |
+| `hanamii storage buckets delete <bucket>`      | バケット名を再入力して削除。`--yes` で省略（非対話では必須）                                                                                                                                                                                                            |
+| `hanamii storage keys list <bucket>`           | アクセスキー一覧。`--cursor <cursor>` で続き                                                                                                                                                                                                                            |
+| `hanamii storage keys create <bucket>`         | 必須: `--permission <permission>`（read_only / read_write）。鍵は発行時のみ表示                                                                                                                                                                                         |
+| `hanamii storage keys revoke <bucket> <keyId>` | アクセスキーを無効化                                                                                                                                                                                                                                                    |
+| `hanamii storage files list <bucket>`          | ファイル一覧。`--cursor <cursor>` で続き                                                                                                                                                                                                                                |
+| `hanamii storage files url <bucket> <fileId>`  | 閲覧URLを発行（非公開は1時間有効、公開は固定）                                                                                                                                                                                                                          |
+| `hanamii storage usage`                        | 容量・件数・配信量と上限を表示（容量・件数は10進文字列）                                                                                                                                                                                                                |
 | `hanamii mcp`                                  | stdio サーバーを起動。`--allow-delete` で削除ツールを有効化                                                                                                                                                                                                             |
 | `hanamii mcp install`                          | 必須: `--client <client>`（`claude-code` / `cursor` / `codex` / `claude-desktop`）。設定スニペットを表示。`--run` は claude-code の登録コマンド実行のみ対応                                                                                                             |
 
@@ -163,37 +170,83 @@ env_vars = ["HANAMII_TOKEN"]
 
 `hanamii mcp install --client claude-code --run` は `claude mcp add hanamii -- npx -y hanamii mcp` を実行します。利用時は Claude Code に環境変数を渡すか、事前に `hanamii login` を実行してください。他のクライアントの設定ファイルは自動更新しません。
 
-| ツール             | 入力・動作                                                                                                    |
-| ------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `list_workspaces`  | 入力なし。ワークスペース一覧                                                                                  |
-| `list_projects`    | 任意: `workspaceId`、`limit`（1〜100）                                                                        |
-| `get_project`      | `project`（UUID または名前）                                                                                  |
-| `deploy_project`   | `dir`、任意: `name` / `project`、`workspaceId`、`envs`、`wait`（既定 true）、`timeoutSec`（既定・最大900）    |
-| `wait_deployment`  | `project`、`timeoutSec`（既定・最大600）。READY / ERROR まで待機                                              |
-| `get_logs`         | `project`、`since`（既定 `-15m`）、`limit`（既定100、1〜500）、任意: `before`                                 |
-| `get_env`          | `project`、`decrypt`（既定 false、key/type のみ）                                                             |
-| `set_env`          | `project`、`envs`、`restart`（既定 false）                                                                    |
-| `restart_project`  | `project`                                                                                                     |
-| `get_health_check` | `project`                                                                                                     |
-| `set_health_check` | `project`、`enabled`、任意: `path`、`port`。有効化時は `/` 始まりの path 必須。反映には再起動または再デプロイ |
-| `db_list_tables`   | `project`                                                                                                     |
-| `db_query_rows`    | `project`、`table`、`limit`（既定50、1〜100）、`offset`（既定0、0〜1000000）。SQL は不可                      |
-| `delete_project`   | `project`、現在の名前と一致する `confirmName`。`--allow-delete` 指定時だけ登録                                |
+| ツール                      | 入力・動作                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list_workspaces`           | 入力なし。ワークスペース一覧                                                                                                                |
+| `list_projects`             | 任意: `workspaceId`、`limit`（1〜100）                                                                                                      |
+| `get_project`               | `project`（UUID または名前）                                                                                                                |
+| `deploy_project`            | `dir`、任意: `name` / `project`、`workspaceId`、`envs`、`wait`（既定 true）、`timeoutSec`（既定・最大900）                                  |
+| `wait_deployment`           | `project`、`timeoutSec`（既定・最大600）。READY / ERROR まで待機                                                                            |
+| `get_logs`                  | `project`、`since`（既定 `-15m`）、`limit`（既定100、1〜500）、任意: `before`                                                               |
+| `get_env`                   | `project`、`decrypt`（既定 false、key/type のみ）                                                                                           |
+| `set_env`                   | `project`、`envs`、`restart`（既定 false）                                                                                                  |
+| `restart_project`           | `project`                                                                                                                                   |
+| `get_health_check`          | `project`                                                                                                                                   |
+| `set_health_check`          | `project`、`enabled`、任意: `path`、`port`。有効化時は `/` 始まりの path 必須。反映には再起動または再デプロイ                               |
+| `db_list_tables`            | `project`                                                                                                                                   |
+| `db_query_rows`             | `project`、`table`、`limit`（既定50、1〜100）、`offset`（既定0、0〜1000000）。SQL は不可                                                    |
+| `delete_project`            | `project`、現在の名前と一致する `confirmName`。`--allow-delete` 指定時だけ登録                                                              |
+| `create_git_project`        | `name`、`repoFullName`（owner/repo）、`ref`。任意: `rootDirectory`、`workspaceId`、`wait`（既定true）、`timeoutSec`（既定・最大900）        |
+| `redeploy_git_project`      | `project`。保存済みGitHubソースを再デプロイ。任意: `wait`、`timeoutSec`。ブランチ変更不可                                                   |
+| `db_get_info`               | `project`。DB情報・非同期処理の状態（未作成・削除完了はnull）                                                                               |
+| `db_create`                 | `project`、任意: `name`。空のDBを作成                                                                                                       |
+| `db_delete`                 | `project`、DB名と一致する `confirmName`。`--allow-delete` 時のみ                                                                            |
+| `db_list_tokens`            | `project`。DB接続トークンのメタデータ                                                                                                       |
+| `db_create_token`           | `project`、任意: `name`、`permission`（既定read_write）、`ttlSeconds`（既定2592000）。平文は発行時のみ                                      |
+| `db_revoke_token`           | `project`、`tokenId`。DB接続トークンを失効                                                                                                  |
+| `db_create_export`          | `project`、任意: `idempotencyKey`。エクスポート開始                                                                                         |
+| `db_get_export`             | `project`、`exportJobId`。ジョブ状態を取得                                                                                                  |
+| `db_get_export_download`    | `project`、`exportJobId`。readyのジョブの署名URLを発行                                                                                      |
+| `db_import`                 | `project`、`file`（MCPサーバー上の絶対パス）、任意: `name`。SQLiteを分割アップロードして取込開始                                            |
+| `list_api_tokens`           | 任意: `limit`（1〜100）、`until`、`since`（epoch ms）。メタデータのみ                                                                       |
+| `create_api_token`          | 利用者の明示的な依頼時のみ。`name`、`scopeType`、任意: `workspaceId`、`expiresAt`（epoch ms / null）。発行した `bearerToken` のみ伏字対象外 |
+| `revoke_api_token`          | `tokenId`（current指定可）。現在のトークンを失効すると以後の認証が失敗                                                                      |
+| `storage_list_buckets`      | 任意: `workspaceId`、`cursor`。バケット一覧と `apiOrigin`                                                                                   |
+| `storage_create_bucket`     | `name`、`visibility`、任意: `workspaceId`                                                                                                   |
+| `storage_delete_bucket`     | `bucket`、バケット名と一致する `confirmName`、任意: `workspaceId`。`--allow-delete` 時のみ                                                  |
+| `storage_list_access_keys`  | `bucket`、任意: `workspaceId`、`cursor`                                                                                                     |
+| `storage_create_access_key` | `bucket`、`permission`、任意: `workspaceId`。完全な鍵と接続先を発行時のみ返す                                                               |
+| `storage_revoke_access_key` | `bucket`、`keyId`、任意: `workspaceId`                                                                                                      |
+| `storage_list_files`        | `bucket`、任意: `workspaceId`、`cursor`                                                                                                     |
+| `storage_get_file_url`      | `bucket`、`fileId`、任意: `workspaceId`                                                                                                     |
+| `storage_get_usage`         | 任意: `workspaceId`。使用量と上限                                                                                                           |
 
-ツールの説明文・引数説明・サーバーの instructions はモデル向けに英語で書いてあり、全ツールに `outputSchema` が付いています（forecall lint 規則 v2 で平均 93 点）。`envs` は `{key, value, type?}` の配列で、type は `secret`（既定）または `plain` です。削除を有効にする場合は起動引数に `--allow-delete` を追加します。`deploy_project` / `wait_deployment` は progressToken がある場合に進捗を通知します。
+ツールの説明文・引数説明・サーバーの instructions はモデル向けに英語で書いてあり、全ツールに `outputSchema` が付いています。`envs` は `{key, value, type?}` の配列で、type は `secret`（既定）または `plain` です。削除を有効にする場合は起動引数に `--allow-delete` を追加します。`deploy_project` / `wait_deployment` は progressToken がある場合に進捗を通知します。
 
 リソース `hanamii://docs/public-api` と、デプロイ手順を案内するプロンプト `deploy_app` も提供します。
 
 ## AI エージェント向け
 
-CLI の `--json` で機械可読な結果を取得できます。通常の出力・エラーでは認証トークンをマスクします。例外として、明示的な `tokens create` は発行したトークンを一度だけ表示し、`--json` でも `bearerToken` を返します。
+CLI の `--json` で機械可読な結果を取得できます。通常の出力・エラーでは API トークンをマスクします。CLI `tokens create` / MCP `create_api_token` は発行した `bearerToken` だけを例外として返し、メタデータ内のトークンは伏せます。ストレージキーとDB接続トークンも発行時の応答でのみ平文を返します。秘密値や署名URLをログ・ソースコード・無関係な応答に転載しないでください。
+
+## DB・ストレージの使い方
+
+```bash
+hanamii db create --project my-app --name app-db
+hanamii db info --project my-app
+hanamii db export --project my-app --output backup.db
+hanamii db import backup.db --project empty-app --name restored
+hanamii storage buckets list --workspace <id>
+hanamii storage files list uploads --workspace <id>
+```
+
+DBの作成・削除・取込は非同期です。`db info` / `db_get_info` を繰り返し呼び、ready・failed・null（削除完了）を確認します。インポートはDBがないプロジェクトに限り、既存DBの自動削除や上書きはしません。SQLiteファイルは100MiB以下で、MCPの `file` はサーバープロセスから読める絶対パスです。パートのアップロードが失敗したりETagが欠けたりした場合は取込を開始しません。
+
+エクスポートは `db_create_export` → `db_get_export`（readyまで確認）→ `db_get_export_download` の順です。署名URLの期限と成果物の保持期限は別で、保持期限内ならURLを再発行できます。CLIは既定で完了まで待機し、`--no-wait` で受付だけ、`--job <id>` で再開します。`--output` はサイズ・SHA-256を検証し、0600で保存します（既存ファイルは上書きしません）。`--output` と `--no-wait`、`--job` と `--idempotency-key` は併用できません。
+
+ストレージの `<bucket>` / `bucket` はIDまたは名前です。workspace省略時はトークンのscopeまたはアクセス可能な1件を使い、複数あれば指定を求めます。一覧は `nextCursor` を次の `--cursor` / `cursor` に渡します。無料プランではprivateバケットのみで、visibilityは作成後に変更できません。バケット削除の `processing` は受付済み、`completed` は完了です。
+
+DB情報はプロジェクトの閲覧権限、それ以外のDB操作はowner/adminが必要です。ストレージの一覧・閲覧URL・利用量はメンバー、バケット作成・削除とキー操作はowner/adminが対象です。MCPのデータ削除3ツール（プロジェクト・バケット・DB）は `--allow-delete` が必要で、それぞれの現在の名前を `confirmName` に指定します。通常は35ツール、削除を有効にすると38ツールです。
 
 ## 制限事項
 
 - 環境変数は追加・更新のみ。削除 API がないため `env unset` はありません。
-- DB は読取専用。書込・raw SQL は提供しません。
+- DB管理（作成・削除・接続トークン・エクスポート・インポート）に対応。行の書込・raw SQL は提供しません。
 - ログはランタイムログで、追跡はポーリングです。ストリーミングではありません。
+- ストレージのファイルアップロード・削除は未対応です。アプリからアクセスキーを使いファイルAPIを呼びます。
+- GitHub連携の設定とリポジトリ・ブランチの一覧取得は未対応です。Git再デプロイは保存済みブランチを使います。
 - MCP はローカル stdio のみです。
+- Phase 7 の追加操作はモックで検証。本番の書き込み確認は未実施です。
 
 ## 開発
 

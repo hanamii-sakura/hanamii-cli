@@ -2,7 +2,14 @@
 
 ## Unreleased
 
-（なし）
+- ストレージ: バケット・アクセスキー・ファイル一覧・閲覧URL・利用量のMCPツール9本と `storage buckets|keys|files|usage` CLIを追加。バケット削除は名前確認付き
+- DB: 情報・作成・削除・接続トークン・エクスポート・インポートのMCPツール10本と `db create|delete|tokens|export|import` CLIを追加。署名URLへの分割PUTとETag確認、エクスポートのサイズ・SHA-256検証、既存ファイルの上書き防止に対応
+- MCP: `create_git_project` / `redeploy_git_project` でGitHubから新規作成・保存済みソースの再デプロイに対応
+- MCP: `list_api_tokens` / `create_api_token` / `revoke_api_token` を追加。APIトークン発行は明示的な依頼時のみ使用し、発行した値だけを伏字処理の例外として返す
+- MCP: 通常35ツール、`--allow-delete` で38ツール。プロジェクト・バケット・DBの削除はopt-inと名前確認が必須
+- README（日英）とMCP instructionsを更新。CLIコマンド・MCPツールの文書一覧をテストで照合
+- DB応答のnullable項目は公開APIの実装に合わせ、必要な値が欠ければ対象を示したエラーを返す。Git再デプロイのref変更はサーバーが反映しないため提供しない
+- 検証はモックのみ。本番書き込み確認、ストレージファイルのアップロード・削除、バージョン更新・公開は含まない
 
 ## 0.1.1 - 2026-10-15
 

@@ -56,7 +56,8 @@
 - [x] API トークン: MCP で一覧・発行・失効
 - [x] README（日英）の CLI コマンド表・MCP ツール表・制限事項、CHANGELOG（Unreleased）、MCP instructions を Phase 7 の内容に更新
 - [x] ストレージのファイル操作: アクセスキーでアップロード・削除（CLI / MCP）
-- [ ] （柴田さんの確認待ち・着手しない）本番での書き込み系の実呼び出し確認、v0.2.0 を npm に公開
+- [x] v0.2.0 を npm に公開（2026-11-15、柴田さんがローカルから publish。`npx -y hanamii@latest --version` が 0.2.0、`storage --help` に buckets / keys / files / usage を確認。MCP 起動は未確認）
+- [ ] （柴田さんの確認待ち・着手しない）本番での書き込み系の実呼び出し確認（読み取りの `storage usage` / `storage buckets list` だけ確認済み）
 
 ## Phase 8 公開 API の追加が必要（hanamii-frontend 側 → その後 CLI / MCP）
 
